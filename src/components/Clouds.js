@@ -2,7 +2,7 @@ import React, {Component} from 'react';
 
 import Button from './form/Button';
 import { Card, CardImg, CardText, CardBody, CardTitle, CardSubtitle } from 'reactstrap';
-  
+import Global from '../env/faythe';
 
 class Clouds extends Component {
     constructor(props) {
@@ -48,7 +48,8 @@ class Clouds extends Component {
             });
 
         })
-        xhr.open('GET', 'http://127.0.0.1:8600/clouds')
+        // xhr.open('GET', 'http://127.0.0.1:8600/clouds')
+        xhr.open('GET', 'http://'.concat(Global.faythe_ip_addr).concat(":").concat(Global.faythe_port).concat("/clouds"))
         xhr.send()
         
     }

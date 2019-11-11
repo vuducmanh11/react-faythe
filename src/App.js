@@ -8,6 +8,9 @@ import {
   Link
 } from "react-router-dom";
 import { Container, Row, Col } from 'reactstrap';
+// import * as fs from 'fs';
+// import * as yaml from 'js-yaml';
+// import faythe from './env/faythe.yaml';
 
 
 
@@ -19,6 +22,7 @@ import Test from './components/Test';
 import RegisterCloud from './components/RegisterCloud';
 import ListScalers from './components/ListScaler';
 import CreateScaler from './components/CreateScaler';
+import Global from './env/faythe';
 
 class App extends Component {
   constructor(props) {
@@ -116,6 +120,8 @@ class App extends Component {
   //   }
   // }
   render() {
+    console.log("fuckkkk");
+    console.log(Global.faythe_ip_addr);
     return (
       <Container style={this.state.styleContainer.base}>
         <Row>
@@ -124,23 +130,6 @@ class App extends Component {
             <div>
               <ul>
                 {this.renderMenu()}
-                {/* {
-                  MenuItems.map(function (item, index) {
-                    return <li><Link className={item.state} to={item.link}>{item.content}</Link></li>
-                  })
-                } */}
-                {/* <li>
-                  <Link className="active" to="/">Clouds</Link>
-                </li>
-                <li>
-                  <Link className="" to="/clouds">List clouds</Link>
-                </li>
-                <li>
-                  <Link className="" to="/cloud/post">Register cloud</Link>
-                </li>
-                <li>
-                  <Link to="/scalers">Scalers</Link>
-                </li> */}
               </ul>
             </div>
   

@@ -2,6 +2,9 @@ import React, {Component} from 'react';
 
 import Button from './form/Button';
 import { Form, FormGroup, Label, Input,} from 'reactstrap';
+import { Card, CardImg, CardText, CardBody, CardTitle, CardSubtitle } from 'reactstrap';
+import Global from '../env/faythe';
+import { thisTypeAnnotation } from '@babel/types';
 // Card, CardImg, CardText, CardBody, CardTitle, CardSubtitle ,
 class ListScaler extends Component {
     constructor(props) {
@@ -14,6 +17,8 @@ class ListScaler extends Component {
         // this.handeleGetListScalers = this.handeleGetListScalers.bind(this);
         this.selectCloud = this.selectCloud.bind(this);
         this.getListCloud = this.getListCloud.bind(this);
+        this.renderContent = this.renderContent.bind(this);
+        this.deleteScaler = this.deleteScaler.bind(this);
     }
     componentDidMount() {
         var xhr = new XMLHttpRequest()
@@ -27,21 +32,60 @@ class ListScaler extends Component {
             })
 
         })
-        xhr.open('GET', 'http://127.0.0.1:8600/clouds')
+        // xhr.open('GET', 'http://127.0.0.1:8600/clouds')
+        xhr.open('GET', 'http://'.concat(Global.faythe_ip_addr).concat(":").concat(Global.faythe_port).concat("/clouds"))
         xhr.send()
         
     }
 
     selectCloud = (e) => {
-        // let idx = e.target.selectedIndex;
-        // let dataset = e.target.options[idx].dataset;
-        // console.log(dataset);
         console.log(e.target.value);
         this.setState({
             cloudpath: e.target.value
         })
         console.log("123");
     }
+    renderContent(data) {
+        // return()
+        console.log(data)
+        var path = []
+        var scaler;
+        for (scaler in data.Data) {
+            console.log(scaler);
+            path.push(scaler);
+        }
+        console.log(path[0]);
+        return(
+            <div>
+                <Card>
+                    <CardBody>
+                        <CardTitle>Scaler ID:{data.Data[path[0]].cid}</CardTitle>
+                        <CardTitle>Scaler State:{data.Data[path[0]].active ? "active": "inactive"}</CardTitle>
+                    </CardBody>
+                    <button className="btn btn-secondary"  onClick = { () => this.deleteScaler(data.Data[path[0]].cid,data.Data[path[0]].id)}>Delete scaler</button>
+                </Card>
+            </div>
+        );
+    }
+
+    deleteScaler(c,s) {
+        var xhr = new XMLHttpRequest()
+        // var xh = new XDomainRequest();
+        
+        xhr.addEventListener('load', () => {
+            console.log("Delete scaler success");
+        })
+        console.log(c)
+        console.log(s)
+        var url = 'http://'.concat(Global.faythe_ip_addr).concat(":").concat(Global.faythe_port).concat("/scalers/").concat(c).concat('/').concat(s);
+        console.log(url);
+        // url = 'http://127.0.0.1:8600/clouds'
+        xhr.open('DELETE', url);
+        xhr.setRequestHeader("Access-Control-Allow-Methods", "GET, PUT, POST, DELETE");
+        xhr.send();
+        
+    }
+        
 
     getListCloud(e) {
         e.preventDefault();
@@ -50,13 +94,22 @@ class ListScaler extends Component {
         var xhr = new XMLHttpRequest()
         xhr.addEventListener('load', () => {
             let data = xhr.responseText;
+            data = JSON.parse(data);
             console.log("list scaler");
-            console.log(data);
-            this.setState({
-                Content: data
-            })
+            console.log(typeof(data.Data));
+            if (Object.keys(data.Data).length === 0) {
+                this.setState({
+                    Content: "No scaler found"
+                })
+            } else {
+                var scalers = this.renderContent(data)
+                this.setState({
+                    Content: scalers
+                })
+            }
         })
-        var url = "http://127.0.0.1:8600/scalers/".concat(this.state.cloudpath.replace("/clouds/",""))
+        // var url = "http://127.0.0.1:8600/scalers/".concat(this.state.cloudpath.replace("/clouds/",""))
+        var url = 'http://'.concat(Global.faythe_ip_addr).concat(":").concat(Global.faythe_port).concat("/scalers/").concat(this.state.cloudpath.replace("/clouds/",""))
         console.log(url)
         xhr.open('GET', url)
         xhr.send()
@@ -73,22 +126,8 @@ class ListScaler extends Component {
             )
         }, this);
         return (
-            // <div>
-            //     <select>
-            //         {cloudlist}
-            //     </select>
-            // </div>
             <div>
-
-            
                 <Form className="container" onSubmit={this.getListCloud} >
-                    {/* <FormGroup>
-                        <Label for="listcloud">Choose cloud</Label>
-                        <Input type="select" name="selectcloud" id="listcloud"  onChange={this.selectCloud()}>
-                            {cloudlist}
-                            <option value="/clouds/7929723140d7673c776b281e1cac5689">10.60.17.232</option>
-                        </Input>
-                    </FormGroup> */}
                     <div className="form-group">
                         <label for="listcloud">Choose cloud </label>
                         <select id = "listcloud" name="selectcloud" onChange={this.selectCloud} className="form-control">

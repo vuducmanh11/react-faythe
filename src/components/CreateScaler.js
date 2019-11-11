@@ -2,6 +2,7 @@ import React, {Component} from 'react';
 
 import Input from './form/Input';
 import Button from './form/Button';
+import Global from '../env/faythe';
 
 class CreateScaler extends Component {
     constructor(props) {
@@ -43,7 +44,8 @@ class CreateScaler extends Component {
         xhr.addEventListener('load', () => {
             console.log("register succes");
         })
-        xhr.open('POST', 'http://127.0.0.1:8600/clouds/openstack');
+        // xhr.open('POST', 'http://127.0.0.1:8600/clouds/openstack');
+        xhr.open('POST', 'http://'.concat(Global.faythe_ip_addr).concat(":").concat(Global.faythe_port).concat("/clouds/openstack"))
         xhr.send(JSON.stringify({
             "auth": {
                 "username": this.state.newcloud.username,
