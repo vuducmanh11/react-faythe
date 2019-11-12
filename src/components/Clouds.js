@@ -25,15 +25,24 @@ class Clouds extends Component {
             path.push(cloud);
         }
         console.log(path[0]);
-        return(
+        // return(
+        //     <div>
+        //         <Card>
+        //             <CardBody>
+        //                 <CardTitle>CloudURL:{data.Data[path[0]].auth.auth_url.slice(7,19)}</CardTitle>
+        //             </CardBody>
+        //         </Card>
+        //     </div>
+        // );
+        return Object.keys(data.Data).map((item, index) => (
             <div>
-                <Card>
+                <Card> 
                     <CardBody>
-                        <CardTitle>CloudURL:{data.Data[path[0]].auth.auth_url.slice(7,19)}</CardTitle>
+                        <CardTitle>CloudURL:{data.Data[item].auth.auth_url.split(":")[1].replace("//","")}</CardTitle>
                     </CardBody>
                 </Card>
             </div>
-        );
+        ));
     }
 
     handleGetListCloud(e) {

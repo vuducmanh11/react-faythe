@@ -55,17 +55,31 @@ class ListScaler extends Component {
             path.push(scaler);
         }
         console.log(path[0]);
-        return(
+        // return(
+        //     <div>
+        //         <Card>
+        //             <CardBody>
+        //                 <CardTitle>Scaler ID:{data.Data[path[0]].cid}</CardTitle>
+        //                 <CardTitle>Scaler State:{data.Data[path[0]].active ? "active": "inactive"}</CardTitle>
+        //             </CardBody>
+        //             <button className="btn btn-secondary"  onClick = { () => this.deleteScaler(data.Data[path[0]].cid,data.Data[path[0]].id)}>Delete scaler</button>
+        //         </Card>
+        //     </div>
+        // );
+        return Object.keys(data.Data).map((item, index) => (
             <div>
-                <Card>
+                <Card> 
                     <CardBody>
-                        <CardTitle>Scaler ID:{data.Data[path[0]].cid}</CardTitle>
-                        <CardTitle>Scaler State:{data.Data[path[0]].active ? "active": "inactive"}</CardTitle>
+                        <CardTitle>Scaler ID:{data.Data[item].cid}</CardTitle>
+                        <CardTitle>Scaler State:{data.Data[item].active ? "active": "inactive"}</CardTitle>
                     </CardBody>
-                    <button className="btn btn-secondary"  onClick = { () => this.deleteScaler(data.Data[path[0]].cid,data.Data[path[0]].id)}>Delete scaler</button>
+                    <button className="btn btn-secondary"  
+                        onClick = { () => this.deleteScaler(data.Data[item].cid,data.Data[item].id)}>
+                        Delete scaler
+                    </button>
                 </Card>
             </div>
-        );
+        ));
     }
 
     deleteScaler(c,s) {
@@ -79,9 +93,11 @@ class ListScaler extends Component {
         console.log(s)
         var url = 'http://'.concat(Global.faythe_ip_addr).concat(":").concat(Global.faythe_port).concat("/scalers/").concat(c).concat('/').concat(s);
         console.log(url);
+        url = 'http://10.60.17.243:8600/scalers/a4814fc0a872c2e0a2a62571458ff830'
         // url = 'http://127.0.0.1:8600/clouds'
         xhr.open('DELETE', url);
         xhr.setRequestHeader("Access-Control-Allow-Methods", "GET, PUT, POST, DELETE");
+        xhr.setRequestHeader("Access-Control-Allow-Origin", "*");
         xhr.send();
         
     }
@@ -133,7 +149,7 @@ class ListScaler extends Component {
                         <select id = "listcloud" name="selectcloud" onChange={this.selectCloud} className="form-control">
                         <option value="none" selected="selected">Select cloud</option>
                             {cloudlist}
-                            <option value="/clouds/7929723140d7673c776b281e1cac5689" >10.60.17.232</option>
+                            {/* <option value="/clouds/7929723140d7673c776b281e1cac5689" >10.60.17.232</option> */}
                         </select>
                     </div>
                     <Button 
