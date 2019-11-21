@@ -7,11 +7,20 @@ import Global from '../env/faythe';
 class Clouds extends Component {
     constructor(props) {
         super(props);
+        var intervalID;
         this.state = {
             Content: ""
         }
         this.handleGetListCloud = this.handleGetListCloud.bind(this);
         this.renderContent = this.renderContent.bind(this);
+        this.deleteCloud = this.deleteCloud.bind(this);
+        this.editCloud = this.editCloud.bind(this);
+    }
+    deleteCloud(cid) {
+        console.log(cid);
+    }
+    editCloud(cid) {
+        console.log(cid)
     }
     renderContent(resp) {
         // return()
@@ -25,28 +34,28 @@ class Clouds extends Component {
             path.push(cloud);
         }
         console.log(path[0]);
-        // return(
-        //     <div>
-        //         <Card>
-        //             <CardBody>
-        //                 <CardTitle>CloudURL:{data.Data[path[0]].auth.auth_url.slice(7,19)}</CardTitle>
-        //             </CardBody>
-        //         </Card>
-        //     </div>
-        // );
         return Object.keys(data.Data).map((item, index) => (
             <div>
                 <Card> 
                     <CardBody>
                         <CardTitle>CloudURL:{data.Data[item].auth.auth_url.split(":")[1].replace("//","")}</CardTitle>
+                        <button className="btn btn-secondary"  
+                            onClick = { () => this.deleteCloud(data.Data[item].id)}>
+                            Delete cloud
+                        </button>
                     </CardBody>
                 </Card>
             </div>
         ));
     }
-
-    handleGetListCloud(e) {
-        e.preventDefault();
+    componentDidMount() {
+        this.handleGetListCloud();
+    }
+    componentWillUnmount() {
+        clearTimeout(this.intervalID);
+    }
+    handleGetListCloud() {
+        // e.preventDefault();
         var xhr = new XMLHttpRequest()
         xhr.addEventListener('load', () => {
             // console.log(xhr.responseText)
@@ -55,6 +64,7 @@ class Clouds extends Component {
             this.setState({
                 Content: data
             });
+            this.intervalID = setTimeout(this.handleGetListCloud.bind(this), 30000);
 
         })
         // xhr.open('GET', 'http://127.0.0.1:8600/clouds')
@@ -65,14 +75,14 @@ class Clouds extends Component {
     render() {
         return(
             <div>
-                <form className="container" onSubmit={this.handleGetListCloud}>
+                {/* <form className="container" onSubmit={this.handleGetListCloud}>
                     <Button 
                         action = {this.handleGetListCloud}
                         type = {'primary'} 
                         title = {'Get list clouds'}
                         style={buttonStyle}
                     />
-                </form>
+                </form> */}
                 <div>
                     {this.state.Content}
                 </div>

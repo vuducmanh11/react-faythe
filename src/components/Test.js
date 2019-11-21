@@ -10,13 +10,6 @@ class Test extends Component {
   }
 
   componentDidMount() {
-    // this.setState({
-    //   countries: [
-    //     {id: 'AFG', name: 'Afghanistan'},
-    //     {id: 'ALA', name: 'Åland Islands'},
-    //     {id: 'ALB', name: 'Albania'}
-    //   ]
-    // });
     var xhr = new XMLHttpRequest()
     xhr.addEventListener('load', () => {
       console.log("fff");

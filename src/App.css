@@ -18,10 +18,11 @@
 }
 
 .App-link {
-  color: #09d3ac;
+  color: #8a1b6e;
 }
   body {
     margin: 0;
+    font-family: Arial, "Helvetica Neue", Helvetica, sans-serif;
   }
 
   ul {
@@ -29,7 +30,8 @@
     margin: 0;
     padding: 0;
     width: 25%;
-    background-color: #f1f1f1;
+    /* background-color: rgba(221, 16, 50, 0.822); */
+    background-color:#db3d44;
     position: fixed;
     height: 100%;
     overflow: auto;
@@ -37,18 +39,31 @@
 
   li a {
     display: block;
-    color: #000;
+    color: rgb(216, 210, 210);
     padding: 8px 16px;
     text-decoration: none;
   }
 
   li a.active {
-    background-color: #4CAF50;
+    background-color: #af3037;
     color: white;
+    text-decoration: none;
   }
 
   li a:hover:not(.active) {
-    background-color: #555;
+    /* background-color: rgb(124, 42, 55); */
+    background-color: #e77074;
+    /* color: #f9dcdd; */
+    /* color: #222; */
+    /* color: #eee; */
     color: white;
+    text-decoration: none;
+  }
+
+  a {
+    text-decoration: none;
+  }
+  li.item {
+    font-size: 13px
   }
 
