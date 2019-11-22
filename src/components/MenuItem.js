@@ -13,7 +13,7 @@ class MenuItem extends Component {
             // console.log(item.child)
             for (menu_item of item.child) {
                 // console.log(menu_item);
-                str.push(<li><Link to={menu_item.link}>{menu_item.content}</Link></li>)
+                str.push(<li className="item"><Link to={menu_item.link}>{menu_item.content}</Link></li>)
             }
         }
         // str = "123";
