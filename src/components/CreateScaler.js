@@ -2,6 +2,7 @@ import React, {Component} from 'react';
 
 import Input from './form/Input';
 import Button from './form/Button';
+import Select from './form/Select';
 import Global from '../env/faythe';
 
 class CreateScaler extends Component {
@@ -10,132 +11,422 @@ class CreateScaler extends Component {
         this.state = {
             Content: "",
             cloud: "not fill",
-            newcloud: {
-                // auth: {
-                    username: "",
-                    auth_url: "http://10.60.17.231:35357/v3",
-                    password: "contrail123",
-                    project_name: "admin",
-                // },
-                // monitor: {
-                    backend: "prometheus",
-                    address: "http://127.0.0.1:9090",
-                // },
-                provider: "openstack"
+            scale_options: ['VirtualMachine', 'ServiceChain'],
+            scaler: {
+                scaler_type: "",
+                cid: "5ff1fabae6577b113be94896d0b7ff7b",
+                // cuser: "admin",
+                // cpass: "",
+                stack_id: "c6cfdc13",
+                stack_name: "contrail2",
+                query: "((node_memory_MemTotal_bytes{stack_asg_id=\"3f8ff4d9-c527-4a14-aa62-ccb6a05ec8ce\"} - (node_memory_MemFree_bytes{stack_asg_id=\"3f8ff4d9-c527-4a14-aa62-ccb6a05ec8ce\"} + node_memory_Buffers_bytes{stack_asg_id=\"3f8ff4d9-c527-4a14-aa62-ccb6a05ec8ce\"} + node_memory_Cached_bytes{stack_asg_id=\"3f8ff4d9-c527-4a14-aa62-ccb6a05ec8ce\"})) / node_memory_MemTotal_bytes{stack_asg_id=\"3f8ff4d9-c527-4a14-aa62-ccb6a05ec8ce\"} * 100) < 20",
+                duration: "4m",
+                interval: "30s",
+                action: "scale_in",
+                url: "http://10.60.17.231:8000/v1/signal/arn%3Aopenstack%3Aheat%3A%3A15ca692bfac046a591351cb0c47ddbad%3Astacks/scale/3f8ff4d9-c527-4a14-aa62-ccb6a05ec8ce/resources/scaleup_policy?Timestamp=2019-10-10T05%3A19%3A02Z&SignatureMethod=HmacSHA256&AWSAccessKeyId=6eca7a4cc4264256bc9e0e74d496dc72&SignatureVersion=2&Signature=3S%2Bvbln%2FKwBLU%2FbGh66SlcjCu0sfONNNJWtxkT6%2BsJg%3D",
+                attempts: 4,
+                delay: "50ms",
+                // type: "http",
+                // delay_type: "backoff",
+                // method: "POST",
+                active: true,
+                cooldown: "400s",
+                tags: ["manhvd"],
+                networks: ["left-client","right-client"],
+                sfc_policy: "fw_policy"
             }
         };
         this.handleInput = this.handleInput.bind(this);
-        this.handleRegisterCloud = this.handleRegisterCloud.bind(this);
+        this.handleCreateScaler = this.handleCreateScaler.bind(this);
     }
     handleInput(e) {
         let value = e.target.value;
         let name = e.target.name;
-        this.setState( prevState => ({ newcloud: 
-            {...prevState.newcloud, [name]: value
+        if (name === "networks" || name === "tags") {
+            this.setState( prevState => ({ scaler: 
+                {...prevState.scaler, [name]: value.split(',')
+            }
+            }), () => console.log(this.state.scaler))
+        } else {
+            this.setState( prevState => ({ scaler: 
+                {...prevState.scaler, [name]: value
+            }
+            }), () => console.log(this.state.scaler))
         }
-        }), () => console.log(this.state.newcloud))
     }
-    handleRegisterCloud(e) {
+    handleCreateScaler(e) {
         e.preventDefault();
-        // this.setState({
-        //     Content: "Let register cloud...."
-        // });
+        var action = this.state.scaler.action
+        console.log(action)
+        var scaler = {
+            cid : this.state.scaler.cid,
+            // cuser: this.state.scaler.cuser,
+            // cpass: this.state.scaler.cpass,
+            stack_id: this.state.scaler.stack_id,
+            stack_name: this.state.scaler.stack_name,
+            query: this.state.scaler.query,
+            duration: this.state.scaler.duration,
+            interval: this.state.scaler.interval,
+            actions: {},
+            active: this.state.scaler.active,
+            cooldown: this.state.scaler.cooldown,
+            // tags: this.state.scaler.tags.split(','),
+            tags: this.state.scaler.tags,
+            sfc_policy: this.state.scaler.sfc_policy,
+            // networks: this.state.scaler.networks.split(',')
+            networks: this.state.scaler.networks
+        }
+        scaler.actions[action] = {
+            url: this.state.scaler.url,
+            attempts: this.state.scaler.attempts,
+            delay: this.state.scaler.delay,
+            // type: this.state.scaler.type,
+            // delay_type: this.state.scaler.delay_type,
+            // method: this.state.scaler.method,
+        }
+        console.log(scaler)
+        var json = JSON.stringify(scaler)
         var xhr = new XMLHttpRequest()
         xhr.addEventListener('load', () => {
             console.log("register succes");
         })
         // xhr.open('POST', 'http://127.0.0.1:8600/clouds/openstack');
-        xhr.open('POST', 'http://'.concat(Global.faythe_ip_addr).concat(":").concat(Global.faythe_port).concat("/clouds/openstack"))
-        xhr.send(JSON.stringify({
-            "auth": {
-                "username": this.state.newcloud.username,
-                "auth_url": this.state.newcloud.auth_url,
-                "password": this.state.newcloud.password,
-                "project_name": this.state.newcloud.project_name
-              },
-              "monitor": {
-                "backend": this.state.newcloud.backend,
-                "address": this.state.newcloud.address
-              },
-              "provider": this.state.newcloud.provider
-        }))
+        xhr.open('POST', 'http://'.concat(Global.faythe_ip_addr).concat(":").concat(Global.faythe_port).concat("/scalers/").concat(scaler.cid))
+        xhr.send(json)
     }
     render() {
+        if (this.state.scaler.scaler_type === "VirtualMachine") {
+            return (
+                <div>
+                    <form className="container-fluid" onSubmit={this.handleCreateScaler}>
+                        <h2>Select type scaler</h2>
+                        <Select title={'Select type scaler'}
+                            name={'scaler_type'}
+                            options = {this.state.scale_options} 
+                            value = {this.state.scaler.scaler_type}
+                            placeholder = {'Select Type'}
+                            handleChange = {this.handleInput}
+                            />
+                        <Input required 
+                        inputType={'text'}
+                        title={"Cloud ID"}
+                        name={'cid'}
+                        value={this.state.scaler.cid}
+                        placeholder = {'Fill cloud-id'}
+                        handleChange = {this.handleInput}
+                        />
+                        <Input required 
+                        inputType={'text'}
+                        title={"Stack ID"}
+                        name={'stack_id'}
+                        value={this.state.scaler.stack_id}
+                        placeholder = {'Fill stackID'}
+                        handleChange = {this.handleInput}
+                        />
+                        <Input required 
+                        inputType={'text'}
+                        title={"Stack name"}
+                        name={'stack_name'}
+                        value={this.state.scaler.stack_name}
+                        placeholder = {'Fill stack name'}
+                        handleChange = {this.handleInput}
+                        />
+                        <Input required 
+                        inputType={'text'}
+                        title={"query"}
+                        name={'query'}
+                        value={this.state.scaler.query}
+                        placeholder = {'Fill query'}
+                        handleChange = {this.handleInput}
+                        />
+                        <Input required 
+                            inputType={'text'}
+                            title={"duration"}
+                            name={'duration'}
+                            value={this.state.scaler.duration}
+                            placeholder = {'Enter your'}
+                            handleChange = {this.handleInput}
+
+                        />
+                        <Input required 
+                            inputType={'text'}
+                            title={"Interval"}
+                            name={'interval'}
+                            value={this.state.scaler.interval}
+                            placeholder = {'Enter your'}
+                            handleChange = {this.handleInput}
+
+                        />
+                        <Input required
+                            inputType={'text'}
+                            title={"Action key"}
+                            name={'action'}
+                            value={this.state.scaler.action}
+                            placeholder = {'Enter your'}
+                            handleChange = {this.handleInput}
+                        />    
+                        <Input required 
+                            inputType={'text'}
+                            title={"Url trigger scale"}
+                            name={'url'}
+                            value={this.state.scaler.url}
+                            placeholder = {'Enter your'}
+                            handleChange = {this.handleInput}
+                        />
+                        <Input required 
+                            inputType={'text'}
+                            title={"Attempts"}
+                            name={'attempts'}
+                            value={this.state.scaler.attempts}
+                            placeholder = {'Enter your'}
+                            handleChange = {this.handleInput}
+                        />
+                        <Input required 
+                            inputType={'text'}
+                            title={"Delay"}
+                            name={'delay'}
+                            value={this.state.scaler.delay}
+                            placeholder = {'Enter your'}
+                            handleChange = {this.handleInput}
+                        />
+                        {/* <Input required 
+                            inputType={'text'}
+                            title={"provider"}
+                            name={'type'}
+                            value={this.state.scaler.type}
+                            placeholder = {'Enter your'}
+                            handleChange = {this.handleInput}
+                        />
+                        <Input required 
+                            inputType={'text'}
+                            title={"provider"}
+                            name={'delay_type'}
+                            value={this.state.scaler.delay_type}
+                            placeholder = {'Enter your'}
+                            handleChange = {this.handleInput}
+                        />
+                        <Input required 
+                            inputType={'text'}
+                            title={"Method"}
+                            name={'method'}
+                            value={this.state.scaler.method}
+                            placeholder = {'Enter your'}
+                            handleChange = {this.handleInput}
+                        /> */}
+                        <Input required 
+                            inputType={'text'}
+                            title={"Active"}
+                            name={'active'}
+                            value={this.state.scaler.active}
+                            placeholder = {'Enter your'}
+                            handleChange = {this.handleInput}
+                        />
+                        <Input required 
+                            inputType={'text'}
+                            title={"Cooldown"}
+                            name={'cooldown'}
+                            value={this.state.scaler.cooldown}
+                            placeholder = {'Enter your'}
+                            handleChange = {this.handleInput}
+                        />
+                        <Input required 
+                            inputType={'text'}
+                            title={"Tags"}
+                            name={'tags'}
+                            value={this.state.scaler.tags}
+                            placeholder = {'Enter your'}
+                            handleChange = {this.handleInput}
+                        />
+                        
+                        <Button 
+                            action = {this.handleCreateScaler}
+                            type = {'primary'} 
+                            title = {'Register'}
+                            style={buttonStyle}
+                        />
+                    </form>    
+                </div>
+            )
+        } else {        
         return(
             <div>
-                <form className="container-fluid" onSubmit={this.handleRegisterCloud}>
+                <form className="container-fluid" onSubmit={this.handleCreateScaler}>
                     <div>
-                        <p>Auth section</p>
-                        <Input 
+                        <h2>Select type scaler</h2>
+                        <Select title={'Select type scaler'}
+                            name={'scaler_type'}
+                            options = {this.state.scale_options} 
+                            value = {this.state.scaler.scaler_type}
+                            placeholder = {'Select Type'}
+                            handleChange = {this.handleInput}
+                            />
+                        <Input required 
                         inputType={'text'}
-                        title={"Username"}
-                        name={'username'}
-                        value={this.state.newcloud.username}
-                        placeholder = {'Enter your'}
+                        title={"Cloud ID"}
+                        name={'cid'}
+                        value={this.state.scaler.cid}
+                        placeholder = {'Fill cloud-id'}
                         handleChange = {this.handleInput}
-                    />
-                    <Input 
+                        />
+                        {/* <Input required 
                         inputType={'text'}
-                        title={"auth_url"}
-                        name={'auth_url'}
-                        value={this.state.newcloud.auth_url}
-                        placeholder = {'Enter your'}
+                        title={"Cloud User"}
+                        name={'cuser'}
+                        value={this.state.scaler.cuser}
+                        placeholder = {'Fill cloud user'}
                         handleChange = {this.handleInput}
+                        /> */}
 
-                    />
-                    <Input 
+                        {/* <Input required 
                         inputType={'password'}
-                        title={"Clouds"}
-                        name={'password'}
-                        value={this.state.newcloud.password}
-                        placeholder = {'Enter your'}
+                        title={"Cloud password"}
+                        name={'cpass'}
+                        value={this.state.scaler.cpass}
+                        placeholder = {'Fill cloud password'}
                         handleChange = {this.handleInput}
+                        /> */}
+                        <Input required 
+                        inputType={'text'}
+                        title={"Stack ID"}
+                        name={'stack_id'}
+                        value={this.state.scaler.stack_id}
+                        placeholder = {'Fill stackID'}
+                        handleChange = {this.handleInput}
+                        />
+                        <Input required 
+                        inputType={'text'}
+                        title={"Stack name"}
+                        name={'stack_name'}
+                        value={this.state.scaler.stack_name}
+                        placeholder = {'Fill stack name'}
+                        handleChange = {this.handleInput}
+                        />
+                        <Input required inputType={'text'} title={"Service chain policy"} name={'sfc_policy'}
+                            value={this.state.scaler.sfc_policy} placeholder={'Fill service chain policy'}
+                            handleChange={this.handleInput} />
+                        <Input required inputType={'text'} title={"Network client"} name={'networks'}
+                            value={this.state.scaler.networks} handleChange={this.handleInput} />
+                        <Input required 
+                        inputType={'text'}
+                        title={"query"}
+                        name={'query'}
+                        value={this.state.scaler.query}
+                        placeholder = {'Fill query'}
+                        handleChange = {this.handleInput}
+                        />
+                        <Input required 
+                            inputType={'text'}
+                            title={"duration"}
+                            name={'duration'}
+                            value={this.state.scaler.duration}
+                            placeholder = {'Enter your'}
+                            handleChange = {this.handleInput}
 
-                    />
+                        />
+                        <Input required 
+                            inputType={'text'}
+                            title={"Interval"}
+                            name={'interval'}
+                            value={this.state.scaler.interval}
+                            placeholder = {'Enter your'}
+                            handleChange = {this.handleInput}
+
+                        />
+                        <Input required
+                            inputType={'text'}
+                            title={"Action key"}
+                            name={'action'}
+                            value={this.state.scaler.action}
+                            placeholder = {'Enter your'}
+                            handleChange = {this.handleInput}
+                        />    
+                        <Input required 
+                            inputType={'text'}
+                            title={"Url trigger scale"}
+                            name={'url'}
+                            value={this.state.scaler.url}
+                            placeholder = {'Enter your'}
+                            handleChange = {this.handleInput}
+                        />
+                        <Input required 
+                            inputType={'text'}
+                            title={"Attempts"}
+                            name={'attempts'}
+                            value={this.state.scaler.attempts}
+                            placeholder = {'Enter your'}
+                            handleChange = {this.handleInput}
+                        />
+                        <Input required 
+                            inputType={'text'}
+                            title={"Delay"}
+                            name={'delay'}
+                            value={this.state.scaler.delay}
+                            placeholder = {'Enter your'}
+                            handleChange = {this.handleInput}
+                        />
+                        {/* <Input required 
+                            inputType={'text'}
+                            title={"provider"}
+                            name={'type'}
+                            value={this.state.scaler.type}
+                            placeholder = {'Enter your'}
+                            handleChange = {this.handleInput}
+                        /> */}
+                        {/* <Input required 
+                            inputType={'text'}
+                            title={"provider"}
+                            name={'delay_type'}
+                            value={this.state.scaler.delay_type}
+                            placeholder = {'Enter your'}
+                            handleChange = {this.handleInput}
+                        /> */}
+                        {/* <Input required 
+                            inputType={'text'}
+                            title={"Method"}
+                            name={'method'}
+                            value={this.state.scaler.method}
+                            placeholder = {'Enter your'}
+                            handleChange = {this.handleInput}
+                        /> */}
+                        <Input required 
+                            inputType={'text'}
+                            title={"Active"}
+                            name={'active'}
+                            value={this.state.scaler.active}
+                            placeholder = {'Enter your'}
+                            handleChange = {this.handleInput}
+                        />
+                        <Input required 
+                            inputType={'text'}
+                            title={"Cooldown"}
+                            name={'cooldown'}
+                            value={this.state.scaler.cooldown}
+                            placeholder = {'Enter your'}
+                            handleChange = {this.handleInput}
+                        />
+                        <Input required 
+                            inputType={'text'}
+                            title={"Tags"}
+                            name={'tags'}
+                            value={this.state.scaler.tags}
+                            placeholder = {'Enter your'}
+                            handleChange = {this.handleInput}
+                        />
+                        
+                        <Button 
+                            action = {this.handleCreateScaler}
+                            type = {'primary'} 
+                            title = {'Register'}
+                            style={buttonStyle}
+                        />
                     </div>
-                    <div>
-                        <p>Monitor section</p>
-                        <Input 
-                        inputType={'text'}
-                        title={"backend"}
-                        name={'backend'}
-                        value={this.state.newcloud.backend}
-                        placeholder = {'Enter your'}
-                        handleChange = {this.handleInput}
-
-                    />
-                    <Input 
-                        inputType={'text'}
-                        title={"Clouds"}
-                        name={'address'}
-                        value={this.state.newcloud.address}
-                        placeholder = {'Enter your'}
-                        handleChange = {this.handleInput}
-
-                    />
-                    </div>
-                    <Input 
-                        inputType={'text'}
-                        title={"provider"}
-                        name={'provider'}
-                        value={this.state.newcloud.provider}
-                        placeholder = {'Enter your'}
-                        handleChange = {this.handleInput}
-
-                    />
-                    
-                    <Button 
-                        action = {this.handleRegisterCloud}
-                        type = {'primary'} 
-                        title = {'Register'}
-                        style={buttonStyle}
-                    />
                 </form>
                 <div>
                     {this.state.Content}
                 </div>
             </div>
         );
+        }
     }
 }
 const buttonStyle = {

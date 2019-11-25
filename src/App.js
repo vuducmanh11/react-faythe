@@ -73,13 +73,18 @@ class App extends Component {
         padding: 0
       }
     }
-    let listState = {1: "active", 2: "inactive"};
+    let listState ;
     this.state = {
       MenuItems: MenuItems,
       styleContainer: styleContainer,
       listState: listState
     }
 
+  }
+  componentWillMount() {
+    this.setState({
+      listState: {1: "inactive", 2: "inactive"}
+    })
   }
   
   handleClickMenu = (index) => {
@@ -107,7 +112,7 @@ class App extends Component {
     let {MenuItems, listState} = this.state;
     return MenuItems.map((item) => {
       return (
-      <MenuItem  item={item} handleClickMenu={this.handleClickMenu} listState={listState}
+      <MenuItem key={item.index} item={item} handleClickMenu={this.handleClickMenu} listState={listState}
       />)
       // console.log(item);
     });
@@ -120,7 +125,7 @@ class App extends Component {
   //   }
   // }
   render() {
-    console.log("fuckkkk");
+    // console.log("fuckkkk");
     console.log(Global.faythe_ip_addr);
     return (
       <Container style={this.state.styleContainer.base}>
