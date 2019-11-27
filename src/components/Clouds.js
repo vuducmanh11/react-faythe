@@ -15,12 +15,16 @@ class Clouds extends Component {
         this.renderContent = this.renderContent.bind(this);
         this.deleteCloud = this.deleteCloud.bind(this);
         this.editCloud = this.editCloud.bind(this);
+        this.createScaler = this.createScaler.bind(this);
     }
     deleteCloud(cid) {
         console.log(cid);
     }
     editCloud(cid) {
-        console.log(cid)
+        console.log(cid);
+    }
+    createScaler(cid) {
+        console.log(cid);
     }
     renderContent(resp) {
         // return()
@@ -43,6 +47,11 @@ class Clouds extends Component {
                             onClick = { () => this.deleteCloud(data.Data[item].id)}>
                             Delete cloud
                         </button>
+                        <button className="btn btn-secondary"
+                            onClick = { () => this.createScaler(data.Data[item].id)}>
+                            Create scaler
+                        </button>
+
                     </CardBody>
                 </Card>
             </div>

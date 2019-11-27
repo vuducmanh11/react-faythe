@@ -173,43 +173,19 @@ class CreateScaler extends Component {
                             placeholder = {'Enter your'}
                             handleChange = {this.handleInput}
                         />
-                        <Input required 
+                        {/* <Input required 
                             inputType={'text'}
                             title={"Attempts"}
                             name={'attempts'}
                             value={this.state.scaler.attempts}
                             placeholder = {'Enter your'}
                             handleChange = {this.handleInput}
-                        />
-                        <Input required 
+                        /> */}
+                        {/* <Input required 
                             inputType={'text'}
                             title={"Delay"}
                             name={'delay'}
                             value={this.state.scaler.delay}
-                            placeholder = {'Enter your'}
-                            handleChange = {this.handleInput}
-                        />
-                        {/* <Input required 
-                            inputType={'text'}
-                            title={"provider"}
-                            name={'type'}
-                            value={this.state.scaler.type}
-                            placeholder = {'Enter your'}
-                            handleChange = {this.handleInput}
-                        />
-                        <Input required 
-                            inputType={'text'}
-                            title={"provider"}
-                            name={'delay_type'}
-                            value={this.state.scaler.delay_type}
-                            placeholder = {'Enter your'}
-                            handleChange = {this.handleInput}
-                        />
-                        <Input required 
-                            inputType={'text'}
-                            title={"Method"}
-                            name={'method'}
-                            value={this.state.scaler.method}
                             placeholder = {'Enter your'}
                             handleChange = {this.handleInput}
                         /> */}
@@ -221,14 +197,14 @@ class CreateScaler extends Component {
                             placeholder = {'Enter your'}
                             handleChange = {this.handleInput}
                         />
-                        <Input required 
+                        {/* <Input required 
                             inputType={'text'}
                             title={"Cooldown"}
                             name={'cooldown'}
                             value={this.state.scaler.cooldown}
                             placeholder = {'Enter your'}
                             handleChange = {this.handleInput}
-                        />
+                        /> */}
                         <Input required 
                             inputType={'text'}
                             title={"Tags"}
@@ -348,22 +324,22 @@ class CreateScaler extends Component {
                             placeholder = {'Enter your'}
                             handleChange = {this.handleInput}
                         />
-                        <Input required 
+                        {/* <Input required 
                             inputType={'text'}
                             title={"Attempts"}
                             name={'attempts'}
                             value={this.state.scaler.attempts}
                             placeholder = {'Enter your'}
                             handleChange = {this.handleInput}
-                        />
-                        <Input required 
+                        /> */}
+                        {/* <Input required 
                             inputType={'text'}
                             title={"Delay"}
                             name={'delay'}
                             value={this.state.scaler.delay}
                             placeholder = {'Enter your'}
                             handleChange = {this.handleInput}
-                        />
+                        /> */}
                         {/* <Input required 
                             inputType={'text'}
                             title={"provider"}
@@ -396,14 +372,14 @@ class CreateScaler extends Component {
                             placeholder = {'Enter your'}
                             handleChange = {this.handleInput}
                         />
-                        <Input required 
+                        {/* <Input required 
                             inputType={'text'}
                             title={"Cooldown"}
                             name={'cooldown'}
                             value={this.state.scaler.cooldown}
                             placeholder = {'Enter your'}
                             handleChange = {this.handleInput}
-                        />
+                        /> */}
                         <Input required 
                             inputType={'text'}
                             title={"Tags"}
