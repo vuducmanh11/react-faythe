@@ -16,7 +16,7 @@ class ListScaler extends Component {
         }
         // this.handeleGetListScalers = this.handeleGetListScalers.bind(this);
         this.selectCloud = this.selectCloud.bind(this);
-        this.getListCloud = this.getListCloud.bind(this);
+        this.getScaler = this.getScaler.bind(this);
         this.renderContent = this.renderContent.bind(this);
         this.deleteScaler = this.deleteScaler.bind(this);
         this.updateScaler = this.updateScaler.bind(this);
@@ -61,6 +61,10 @@ class ListScaler extends Component {
             <div>
                 <Card> 
                     <CardBody>
+                        <button className="btn" className={data.Data[item].active ? "btn-success": "btn-danger"}
+                            style={{"float":"right","textAlign":"center","padding":"0","borderRadius":"50%",
+                            "width":"35px","height":"35px","lineHeight":"35px","fontSize":"0.9rem"}} >
+                        </button>
                         <CardTitle>Scaler ID:{data.Data[item].cid}</CardTitle>
                         <CardTitle>Scaler State:{data.Data[item].active ? "active": "inactive"}</CardTitle>
                         <button className="btn btn-secondary"  
@@ -89,6 +93,7 @@ class ListScaler extends Component {
         
         xhr.addEventListener('load', () => {
             console.log("Delete scaler success");
+            this.render();
         })
         console.log(c)
         console.log(s)
@@ -100,15 +105,27 @@ class ListScaler extends Component {
         
     }
     activeScaler(c,s) {
-        console.log(c,s);
+        var xhr = new XMLHttpRequest()
+        xhr.addEventListener('load', () => {
+            this.getListScaler();
+            console.log("Active success");
+        })
+        var url = 'http://'.concat(Global.faythe_ip_addr).concat(":").concat(Global.faythe_port).concat("/scalers/active/").concat(c).concat('/').concat(s);
+        xhr.open('POST', url);
+        xhr.send();
     }
     
     inactiveScaler(c,s) {
-        console.log(c,s);
+        var xhr = new XMLHttpRequest()
+        xhr.addEventListener('load', () => {
+            this.getListScaler();
+            console.log("Active success");
+        })
+        var url = 'http://'.concat(Global.faythe_ip_addr).concat(":").concat(Global.faythe_port).concat("/scalers/inactive/").concat(c).concat('/').concat(s);
+        xhr.open('POST', url);
+        xhr.send();
     }
-
-    getListCloud(e) {
-        e.preventDefault();
+    getListScaler() {
         console.log("Cloud path");
         console.log(this.state.cloudpath);
         var xhr = new XMLHttpRequest()
@@ -134,6 +151,34 @@ class ListScaler extends Component {
         xhr.open('GET', url)
         xhr.send()
     }
+    getScaler(e) {
+        e.preventDefault();
+        this.getListScaler()
+        // console.log("Cloud path");
+        // console.log(this.state.cloudpath);
+        // var xhr = new XMLHttpRequest()
+        // xhr.addEventListener('load', () => {
+        //     let data = xhr.responseText;
+        //     data = JSON.parse(data);
+        //     console.log("list scaler");
+        //     console.log(typeof(data.Data));
+        //     if (Object.keys(data.Data).length === 0) {
+        //         this.setState({
+        //             Content: "No scaler found"
+        //         })
+        //     } else {
+        //         var scalers = this.renderContent(data)
+        //         this.setState({
+        //             Content: scalers
+        //         })
+        //     }
+        // })
+        // // var url = "http://127.0.0.1:8600/scalers/".concat(this.state.cloudpath.replace("/clouds/",""))
+        // var url = 'http://'.concat(Global.faythe_ip_addr).concat(":").concat(Global.faythe_port).concat("/scalers/").concat(this.state.cloudpath.replace("/clouds/",""))
+        // console.log(url)
+        // xhr.open('GET', url)
+        // xhr.send()
+    }
     render() {
 
         const { data } = this.state;
@@ -147,7 +192,7 @@ class ListScaler extends Component {
         }, this);
         return (
             <div>
-                <Form className="container" onSubmit={this.getListCloud} >
+                <Form className="container" onSubmit={this.getScaler} >
                     <div className="form-group">
                         <label for="listcloud">Choose cloud </label>
                         <select id = "listcloud" name="selectcloud" onChange={this.selectCloud} className="form-control">
@@ -157,7 +202,7 @@ class ListScaler extends Component {
                         </select>
                     </div>
                     <Button 
-                            onClick = {this.getListCloud}
+                            onClick = {this.getScaler}
                             type = {'primary'} 
                             title = {'Get list scalers'}
                             // style={buttonStyle}

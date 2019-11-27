@@ -58,7 +58,7 @@ class RegisterCloud extends Component {
                 "address": this.state.newcloud.address
               },
               "provider": this.state.newcloud.provider
-        }))
+        }));
     }
     render() {
         return(

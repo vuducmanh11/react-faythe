@@ -13,7 +13,7 @@ class MenuItem extends Component {
             // console.log(item.child)
             for (menu_item of item.child) {
                 // console.log(menu_item);
-                str.push(<li className="item"><Link to={menu_item.link}>{menu_item.content}</Link></li>)
+                str.push(<li key={menu_item.link} className="item"><Link to={menu_item.link}>{menu_item.content}</Link></li>)
             }
         }
         // str = "123";
@@ -29,9 +29,9 @@ class MenuItem extends Component {
         return(
             <div>
                 <li>
-                <Link className={listState[item.index]} to={item.link} onClick={()=>this.props.handleClickMenu(item.index)}>{item.content}</Link>
-            </li>
-            {this.isActive()}
+                    <Link className={listState[item.index]} to={item.link} onClick={()=>this.props.handleClickMenu(item.index)}>{item.content}</Link>
+                </li>
+                {this.isActive()}
             </div>
             
         );
