@@ -2,6 +2,7 @@ import React, {Component} from 'react';
 
 import Button from './form/Button';
 import { Card, CardImg, CardText, CardBody, CardTitle, CardSubtitle } from 'reactstrap';
+import {Link} from 'react-router-dom';
 import Global from '../env/faythe';
 
 class Clouds extends Component {
@@ -51,6 +52,7 @@ class Clouds extends Component {
                             onClick = { () => this.createScaler(data.Data[item].id)}>
                             Create scaler
                         </button>
+                        <Link to="/scalers/create" className="btn btn-primary">Create scaler</Link>
 
                     </CardBody>
                 </Card>
