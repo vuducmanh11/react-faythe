@@ -8,6 +8,8 @@ import {
   Link
 } from "react-router-dom";
 import { Container, Row, Col } from 'reactstrap';
+import SweetAlert from 'sweetalert-react';
+import './../node_modules/sweetalert/dist/sweetalert.css';
 // import * as fs from 'fs';
 // import * as yaml from 'js-yaml';
 // import faythe from './env/faythe.yaml';
@@ -57,7 +59,7 @@ class App extends Component {
             "content": "List scalers"
           },
           {
-            "link": "/scalers/create",
+            "link": "/scalers/create/0",
             "content": "Create scaler"
           },
           {
@@ -77,7 +79,8 @@ class App extends Component {
     this.state = {
       MenuItems: MenuItems,
       styleContainer: styleContainer,
-      listState: listState
+      listState: listState,
+      showAlert: true
     }
 
   }
@@ -160,8 +163,14 @@ class App extends Component {
           <Route exact path="/scalers/list">
             <ListScalers />
           </Route>
-          <Route exact path="/scalers/create">
+          {/* <Route exact path="/scalers/create">
             <CreateScaler />
+          </Route> */}
+          {/* <Route path='/scalers/create/:id' exact> */}
+          <Route path='/scalers/create/:id' component={CreateScaler} >
+            {/* <CreateScaler /> */}
+            {/* <CreateScaler render={(props) => <CreateScaler id={id} {...props} /> } /> */}
+            
           </Route>
           <Route exact path="/test">
             <Test />

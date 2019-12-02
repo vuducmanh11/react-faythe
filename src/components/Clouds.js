@@ -2,24 +2,48 @@ import React, {Component} from 'react';
 
 import Button from './form/Button';
 import { Card, CardImg, CardText, CardBody, CardTitle, CardSubtitle } from 'reactstrap';
-import {Link} from 'react-router-dom';
+import {Link, Route, Switch, BrowserRouter as Router,} from 'react-router-dom';
 import Global from '../env/faythe';
+import CreateScaler from './CreateScaler';
+import SweetAlert from 'sweetalert-react';
+import '../../node_modules/sweetalert/dist/sweetalert.css';
 
 class Clouds extends Component {
     constructor(props) {
         super(props);
-        var intervalID;
+        // var intervalID;
         this.state = {
-            Content: ""
+            Content: "",
+            showAlert: false,
+            titleAlert: '',
+            idAlert: ''
         }
         this.handleGetListCloud = this.handleGetListCloud.bind(this);
         this.renderContent = this.renderContent.bind(this);
         this.deleteCloud = this.deleteCloud.bind(this);
         this.editCloud = this.editCloud.bind(this);
         this.createScaler = this.createScaler.bind(this);
+        this.handleShowAlert = this.handleShowAlert.bind(this);
     }
-    deleteCloud(cid) {
-        console.log(cid);
+    handleShowAlert(item) {
+        console.log('fuck');
+        // console.log(item);
+        console.log(this.state.showAlert);
+        console.log(this.state.idAlert);
+        this.setState({
+            showAlert: true,
+            titleAlert: item.id,
+            idAlert: item.id
+        }, () =>   {
+            console.log(this.state.idAlert);
+        console.log(this.state.showAlert)    
+        });
+        
+
+    }
+    deleteCloud() {
+        console.log('deletecloud')
+        console.log(this.state.idAlert);
     }
     editCloud(cid) {
         console.log(cid);
@@ -39,32 +63,29 @@ class Clouds extends Component {
             path.push(cloud);
         }
         console.log(path[0]);
-        return Object.keys(data.Data).map((item, index) => (
+        return [ Object.keys(data.Data).map((item, index) => (
             <div>
                 <Card> 
                     <CardBody>
                         <CardTitle>CloudURL:{data.Data[item].auth.auth_url.split(":")[1].replace("//","")}</CardTitle>
                         <button className="btn btn-secondary"  
-                            onClick = { () => this.deleteCloud(data.Data[item].id)}>
+                            // onClick = { () => this.deleteCloud(data.Data[item].id)}>
+                            onClick = { () => this.handleShowAlert(data.Data[item])}>
                             Delete cloud
-                        </button>
-                        <button className="btn btn-secondary"
-                            onClick = { () => this.createScaler(data.Data[item].id)}>
-                            Create scaler
-                        </button>
-                        <Link to="/scalers/create" className="btn btn-primary">Create scaler</Link>
-
+                        </button>                        
+                        <Link to={"/scalers/create/".concat(data.Data[item].id)} className="btn btn-secondary">Create scaler</Link>
+            
                     </CardBody>
                 </Card>
             </div>
-        ));
+        )), ]
     }
     componentDidMount() {
         this.handleGetListCloud();
     }
-    componentWillUnmount() {
-        clearTimeout(this.intervalID);
-    }
+    // componentWillUnmount() {
+    //     clearTimeout(this.intervalID);
+    // }
     handleGetListCloud() {
         // e.preventDefault();
         var xhr = new XMLHttpRequest()
@@ -75,7 +96,7 @@ class Clouds extends Component {
             this.setState({
                 Content: data
             });
-            this.intervalID = setTimeout(this.handleGetListCloud.bind(this), 30000);
+            // this.intervalID = setTimeout(this.handleGetListCloud.bind(this), 30000);
 
         })
         // xhr.open('GET', 'http://127.0.0.1:8600/clouds')
@@ -94,6 +115,16 @@ class Clouds extends Component {
                         style={buttonStyle}
                     />
                 </form> */}
+                <SweetAlert
+        show={this.state.showAlert}
+        title="Delete cloud?"
+        text={this.state.titleAlert}
+        showCancelButton
+        onOutsideClick={()  => this.setState({ showAlert: false })}
+        onEscapeKey={()     => this.setState({ showAlert: false })}
+        onCancel={()        => this.setState({ showAlert: false })}
+        onConfirm={()       => this.deleteCloud()}
+    />
                 <div>
                     {this.state.Content}
                 </div>

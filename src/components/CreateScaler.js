@@ -14,7 +14,7 @@ class CreateScaler extends Component {
             scale_options: ['VirtualMachine', 'ServiceChain'],
             scaler: {
                 scaler_type: "",
-                cid: "5ff1fabae6577b113be94896d0b7ff7b",
+                cid: this.props.match.params.id,
                 // cuser: "admin",
                 // cpass: "",
                 stack_id: "c6cfdc13",
@@ -95,9 +95,14 @@ class CreateScaler extends Component {
         xhr.send(json)
     }
     render() {
+        // const {data} = this.props.location
+        // console.log("fuckkk ", data)
+        // console.log(this.props)
+        
         if (this.state.scaler.scaler_type === "VirtualMachine") {
             return (
                 <div>
+                    
                     <form className="container-fluid" onSubmit={this.handleCreateScaler}>
                         <h2>Select type scaler</h2>
                         <Select title={'Select type scaler'}
