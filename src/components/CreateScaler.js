@@ -7,6 +7,7 @@ import Global from '../env/faythe';
 
 class CreateScaler extends Component {
     constructor(props) {
+        var stackid = "33e62d1d-69be-4a16-a60a-88e933ef8846";
         super(props);
         this.state = {
             Content: "",
@@ -17,18 +18,21 @@ class CreateScaler extends Component {
                 cid: this.props.match.params.id,
                 // cuser: "admin",
                 // cpass: "",
-                stack_id: "c6cfdc13",
-                stack_name: "contrail2",
-                query: "((node_memory_MemTotal_bytes{stack_asg_id=\"3f8ff4d9-c527-4a14-aa62-ccb6a05ec8ce\"} - (node_memory_MemFree_bytes{stack_asg_id=\"3f8ff4d9-c527-4a14-aa62-ccb6a05ec8ce\"} + node_memory_Buffers_bytes{stack_asg_id=\"3f8ff4d9-c527-4a14-aa62-ccb6a05ec8ce\"} + node_memory_Cached_bytes{stack_asg_id=\"3f8ff4d9-c527-4a14-aa62-ccb6a05ec8ce\"})) / node_memory_MemTotal_bytes{stack_asg_id=\"3f8ff4d9-c527-4a14-aa62-ccb6a05ec8ce\"} * 100) < 20",
+                stack_id: "33e62d1d-69be-4a16-a60a-88e933ef8846",
+                stack_name: "contrail",
+                query: `( avg by(stack_id) ((node_memory_MemTotal_bytes{stack_id=~"${stackid}"} -\
+                (node_memory_MemFree_bytes{stack_id=~"${stackid}"} + node_memory_Buffers_bytes\
+                {stack_id=~"${stackid}"} + node_memory_Cached_bytes{stack_id=~\
+                "${stackid}"})) / node_memory_MemTotal_bytes{stack_id=~"${stackid}"} * 100)) > 20`,
                 duration: "4m",
                 interval: "30s",
-                action: "scale_in",
-                url: "http://10.60.17.231:8000/v1/signal/arn%3Aopenstack%3Aheat%3A%3A15ca692bfac046a591351cb0c47ddbad%3Astacks/scale/3f8ff4d9-c527-4a14-aa62-ccb6a05ec8ce/resources/scaleup_policy?Timestamp=2019-10-10T05%3A19%3A02Z&SignatureMethod=HmacSHA256&AWSAccessKeyId=6eca7a4cc4264256bc9e0e74d496dc72&SignatureVersion=2&Signature=3S%2Bvbln%2FKwBLU%2FbGh66SlcjCu0sfONNNJWtxkT6%2BsJg%3D",
+                action: "scaleup_policy",
+                url: "http://10.60.17.231:8000/v1/signal/",
                 attempts: 4,
                 delay: "50ms",
-                // type: "http",
-                // delay_type: "backoff",
-                // method: "POST",
+                type: "http",
+                delay_type: "backoff",
+                method: "POST",
                 active: true,
                 cooldown: "400s",
                 tags: ["manhvd"],
@@ -86,6 +90,8 @@ class CreateScaler extends Component {
         }
         console.log(scaler)
         var json = JSON.stringify(scaler)
+        console.log("prreview scaler");
+        console.log(json)
         var xhr = new XMLHttpRequest()
         xhr.addEventListener('load', () => {
             console.log("register succes");

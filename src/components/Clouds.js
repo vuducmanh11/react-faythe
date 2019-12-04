@@ -44,6 +44,20 @@ class Clouds extends Component {
     deleteCloud() {
         console.log('deletecloud')
         console.log(this.state.idAlert);
+        // var xhr = new XMLHttpRequest()
+        // xhr.addEventListener('load', () => {
+        //     // console.log(xhr.responseText)
+        //     let  resp = xhr.responseText;
+        //     var data = this.renderContent(resp)
+        //     this.setState({
+        //         Content: data
+        //     });
+        //     // this.intervalID = setTimeout(this.handleGetListCloud.bind(this), 30000);
+
+        // })
+        // // xhr.open('GET', 'http://127.0.0.1:8600/clouds')
+        // xhr.open('DELETE', 'http://'.concat(Global.faythe_ip_addr).concat(":").concat(Global.faythe_port).concat("/clouds"))
+        // xhr.send()
     }
     editCloud(cid) {
         console.log(cid);

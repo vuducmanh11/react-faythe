@@ -62,10 +62,10 @@ class App extends Component {
             "link": "/scalers/create/0",
             "content": "Create scaler"
           },
-          {
-            "link": "scalers/delete",
-            "content": "Delete scaler"
-          }
+          //{
+          //  "link": "scalers/delete",
+          //  "content": "Delete scaler"
+          //}
         ]
       }
     ];
