@@ -130,15 +130,15 @@ class Clouds extends Component {
                     />
                 </form> */}
                 <SweetAlert
-        show={this.state.showAlert}
-        title="Delete cloud?"
-        text={this.state.titleAlert}
-        showCancelButton
-        onOutsideClick={()  => this.setState({ showAlert: false })}
-        onEscapeKey={()     => this.setState({ showAlert: false })}
-        onCancel={()        => this.setState({ showAlert: false })}
-        onConfirm={()       => this.deleteCloud()}
-    />
+                    show={this.state.showAlert}
+                    title="Delete cloud?"
+                    text={this.state.titleAlert}
+                    showCancelButton
+                    onOutsideClick={()  => this.setState({ showAlert: false })}
+                    onEscapeKey={()     => this.setState({ showAlert: false })}
+                    onCancel={()        => this.setState({ showAlert: false })}
+                    onConfirm={()       => this.deleteCloud()}
+                />
                 <div>
                     {this.state.Content}
                 </div>

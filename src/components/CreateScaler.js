@@ -4,12 +4,17 @@ import Input from './form/Input';
 import Button from './form/Button';
 import Select from './form/Select';
 import Global from '../env/faythe';
+import SweetAlert from 'sweetalert-react';
+import '../../node_modules/sweetalert/dist/sweetalert.css';
 
 class CreateScaler extends Component {
     constructor(props) {
         var stackid = "33e62d1d-69be-4a16-a60a-88e933ef8846";
         super(props);
         this.state = {
+            showAlert: false,
+            titleAlert: '',
+            textAlert: '',
             Content: "",
             cloud: "not fill",
             scale_options: ['VirtualMachine', 'ServiceChain'],
@@ -33,7 +38,7 @@ class CreateScaler extends Component {
                 type: "http",
                 delay_type: "backoff",
                 method: "POST",
-                active: true,
+                active: false,
                 cooldown: "400s",
                 tags: ["manhvd"],
                 networks: ["left-client","right-client"],
@@ -42,6 +47,7 @@ class CreateScaler extends Component {
         };
         this.handleInput = this.handleInput.bind(this);
         this.handleCreateScaler = this.handleCreateScaler.bind(this);
+        this.handleShowAlert = this.handleShowAlert.bind(this);
     }
     handleInput(e) {
         let value = e.target.value;
@@ -57,6 +63,16 @@ class CreateScaler extends Component {
             }
             }), () => console.log(this.state.scaler))
         }
+    }
+    handleShowAlert() {
+        this.setState({
+            showAlert: true
+        })
+    }
+    handleHideAlert() {
+        this.setState({
+            showAlert: false
+        })
     }
     handleCreateScaler(e) {
         e.preventDefault();
@@ -94,7 +110,19 @@ class CreateScaler extends Component {
         console.log(json)
         var xhr = new XMLHttpRequest()
         xhr.addEventListener('load', () => {
-            console.log("register succes");
+            var response = JSON.parse(xhr.response.split('}')[0].concat('}'))
+            if (response["Code"] != 200) {
+                this.setState({
+                    titleAlert: response["Status"],
+                    textAlert: response["Err"]
+                })
+            } else {
+                this.setState({
+                    titleAlert: "Create success"
+                })
+            }
+            this.handleShowAlert();
+            console.log(xhr.response)
         })
         // xhr.open('POST', 'http://127.0.0.1:8600/clouds/openstack');
         xhr.open('POST', 'http://'.concat(Global.faythe_ip_addr).concat(":").concat(Global.faythe_port).concat("/scalers/").concat(scaler.cid))
@@ -108,10 +136,21 @@ class CreateScaler extends Component {
         if (this.state.scaler.scaler_type === "VirtualMachine") {
             return (
                 <div>
+                    <SweetAlert
+                        show={this.state.showAlert}
+                        title={this.state.titleAlert}
+                        text={this.state.textAlert}
+                        showCancelButton
+                        onOutsideClick={()  => this.setState({ showAlert: false })}
+                        onEscapeKey={()     => this.setState({ showAlert: false })}
+                        onCancel={()        => this.setState({ showAlert: false })}
+                        onConfirm={()       => this.handleHideAlert()}
+                    />
                     
                     <form className="container-fluid" onSubmit={this.handleCreateScaler}>
+                    {/* <form className="container-fluid" onSubmit={this.handleShowAlert}> */}
                         <h2>Select type scaler</h2>
-                        <Select title={'Select type scaler'}
+                        <Select title={'Select type scaler'} required
                             name={'scaler_type'}
                             options = {this.state.scale_options} 
                             value = {this.state.scaler.scaler_type}
@@ -184,22 +223,6 @@ class CreateScaler extends Component {
                             placeholder = {'Enter your'}
                             handleChange = {this.handleInput}
                         />
-                        {/* <Input required 
-                            inputType={'text'}
-                            title={"Attempts"}
-                            name={'attempts'}
-                            value={this.state.scaler.attempts}
-                            placeholder = {'Enter your'}
-                            handleChange = {this.handleInput}
-                        /> */}
-                        {/* <Input required 
-                            inputType={'text'}
-                            title={"Delay"}
-                            name={'delay'}
-                            value={this.state.scaler.delay}
-                            placeholder = {'Enter your'}
-                            handleChange = {this.handleInput}
-                        /> */}
                         <Input required 
                             inputType={'text'}
                             title={"Active"}
@@ -208,14 +231,6 @@ class CreateScaler extends Component {
                             placeholder = {'Enter your'}
                             handleChange = {this.handleInput}
                         />
-                        {/* <Input required 
-                            inputType={'text'}
-                            title={"Cooldown"}
-                            name={'cooldown'}
-                            value={this.state.scaler.cooldown}
-                            placeholder = {'Enter your'}
-                            handleChange = {this.handleInput}
-                        /> */}
                         <Input required 
                             inputType={'text'}
                             title={"Tags"}
@@ -234,7 +249,7 @@ class CreateScaler extends Component {
                     </form>    
                 </div>
             )
-        } else {        
+        } else if (this.state.scaler.scaler_type === "ServiceChain") {        
         return(
             <div>
                 <form className="container-fluid" onSubmit={this.handleCreateScaler}>
@@ -255,23 +270,6 @@ class CreateScaler extends Component {
                         placeholder = {'Fill cloud-id'}
                         handleChange = {this.handleInput}
                         />
-                        {/* <Input required 
-                        inputType={'text'}
-                        title={"Cloud User"}
-                        name={'cuser'}
-                        value={this.state.scaler.cuser}
-                        placeholder = {'Fill cloud user'}
-                        handleChange = {this.handleInput}
-                        /> */}
-
-                        {/* <Input required 
-                        inputType={'password'}
-                        title={"Cloud password"}
-                        name={'cpass'}
-                        value={this.state.scaler.cpass}
-                        placeholder = {'Fill cloud password'}
-                        handleChange = {this.handleInput}
-                        /> */}
                         <Input required 
                         inputType={'text'}
                         title={"Stack ID"}
@@ -335,46 +333,6 @@ class CreateScaler extends Component {
                             placeholder = {'Enter your'}
                             handleChange = {this.handleInput}
                         />
-                        {/* <Input required 
-                            inputType={'text'}
-                            title={"Attempts"}
-                            name={'attempts'}
-                            value={this.state.scaler.attempts}
-                            placeholder = {'Enter your'}
-                            handleChange = {this.handleInput}
-                        /> */}
-                        {/* <Input required 
-                            inputType={'text'}
-                            title={"Delay"}
-                            name={'delay'}
-                            value={this.state.scaler.delay}
-                            placeholder = {'Enter your'}
-                            handleChange = {this.handleInput}
-                        /> */}
-                        {/* <Input required 
-                            inputType={'text'}
-                            title={"provider"}
-                            name={'type'}
-                            value={this.state.scaler.type}
-                            placeholder = {'Enter your'}
-                            handleChange = {this.handleInput}
-                        /> */}
-                        {/* <Input required 
-                            inputType={'text'}
-                            title={"provider"}
-                            name={'delay_type'}
-                            value={this.state.scaler.delay_type}
-                            placeholder = {'Enter your'}
-                            handleChange = {this.handleInput}
-                        /> */}
-                        {/* <Input required 
-                            inputType={'text'}
-                            title={"Method"}
-                            name={'method'}
-                            value={this.state.scaler.method}
-                            placeholder = {'Enter your'}
-                            handleChange = {this.handleInput}
-                        /> */}
                         <Input required 
                             inputType={'text'}
                             title={"Active"}
@@ -383,14 +341,6 @@ class CreateScaler extends Component {
                             placeholder = {'Enter your'}
                             handleChange = {this.handleInput}
                         />
-                        {/* <Input required 
-                            inputType={'text'}
-                            title={"Cooldown"}
-                            name={'cooldown'}
-                            value={this.state.scaler.cooldown}
-                            placeholder = {'Enter your'}
-                            handleChange = {this.handleInput}
-                        /> */}
                         <Input required 
                             inputType={'text'}
                             title={"Tags"}
@@ -413,6 +363,27 @@ class CreateScaler extends Component {
                 </div>
             </div>
         );
+        } else {
+            return(
+                <div>
+                    <form className="container-fluid" onSubmit={this.handleCreateScaler}>
+                        <div>
+                            <h2>Select type scaler</h2>
+                            <Select title={'Select type scaler'}
+                                name={'scaler_type'}
+                                options = {this.state.scale_options} 
+                                value = {this.state.scaler.scaler_type}
+                                placeholder = {'Select Type'}
+                                handleChange = {this.handleInput}
+                                />
+                        </div>
+                    </form>
+                    <div>
+                        {this.state.Content}
+                    </div>
+                </div>
+            );
+
         }
     }
 }
