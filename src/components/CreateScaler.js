@@ -111,7 +111,7 @@ class CreateScaler extends Component {
         var xhr = new XMLHttpRequest()
         xhr.addEventListener('load', () => {
             var response = JSON.parse(xhr.response.split('}')[0].concat('}'))
-            if (response["Code"] != 200) {
+            if (response["Code"] !== 200) {
                 this.setState({
                     titleAlert: response["Status"],
                     textAlert: response["Err"]

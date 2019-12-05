@@ -23,7 +23,7 @@ class MenuItem extends Component {
         // console.log(this.props.item);
         let {item, listState} = this.props;
         // console.log(item.index);
-        let childs = item.child;
+        // let childs = item.child;
         // console.log(childs);
 
         return(

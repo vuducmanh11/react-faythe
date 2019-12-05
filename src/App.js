@@ -5,10 +5,10 @@ import {
   BrowserRouter as Router,
   Switch,
   Route,
-  Link
+  // Link
 } from "react-router-dom";
 import { Container, Row, Col } from 'reactstrap';
-import SweetAlert from 'sweetalert-react';
+// import SweetAlert from 'sweetalert-react';
 import './../node_modules/sweetalert/dist/sweetalert.css';
 // import * as fs from 'fs';
 // import * as yaml from 'js-yaml';
