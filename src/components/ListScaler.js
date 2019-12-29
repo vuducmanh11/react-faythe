@@ -17,6 +17,10 @@ class ListScaler extends Component {
             titleAlert: '',
             textAlert: '',
             idAlert: '',
+            showActiveAlert: false,
+            textActiveAlert: '',
+            showInactiveAlert: false,
+            textInactiveAlert: '',
             showNotify: false,
             titleNotify: '',
             textNotify: '',
@@ -74,7 +78,26 @@ class ListScaler extends Component {
             scaler_id: s,
         })
     }
-
+    confirmActiveScaler(cid,sid) {
+        console.log("Confirm active scaler");
+        console.log(cid,sid)
+        this.setState({
+            textActiveAlert: sid,
+            showActiveAlert: true,
+            cloud_id: cid,
+            scaler_id: sid,
+        })
+    }
+    confirmInactiveScaler(cid, sid) {
+        console.log("Confirm inactive scaler");
+        console.log(cid,sid)
+        this.setState({
+            textInactiveAlert: sid,
+            showInactiveAlert: true,
+            cloud_id: cid,
+            scaler_id: sid,
+        })
+    }
     deleteScaler() {
         console.log("Delete scaler process")
         this.setState({
@@ -114,25 +137,32 @@ class ListScaler extends Component {
         })
     }
 
-    activeScaler(c,s) {
+    activeScaler() {
+        this.setState({
+            showActiveAlert: false
+        })
         var xhr = new XMLHttpRequest()
         xhr.addEventListener('load', () => {
             this.getListScaler();
             console.log("Active success");
         })
         var url = 'http://'.concat(Global.faythe_ip_addr).concat(":").concat(Global.faythe_port).concat("/scalers/active/")
-        .concat(c).concat('/').concat(s);
+        .concat(this.state.cloud_id).concat('/').concat(this.state.scaler_id);
         xhr.open('POST', url);
         xhr.send();
     }
     
-    inactiveScaler(c,s) {
+    inactiveScaler() {
+        this.setState({
+            showInactiveAlert: false
+        })
         var xhr = new XMLHttpRequest()
         xhr.addEventListener('load', () => {
             this.getListScaler();
             console.log("Active success");
         })
-        var url = 'http://'.concat(Global.faythe_ip_addr).concat(":").concat(Global.faythe_port).concat("/scalers/inactive/").concat(c).concat('/').concat(s);
+        var url = 'http://'.concat(Global.faythe_ip_addr).concat(":").concat(Global.faythe_port).concat("/scalers/inactive/")
+        .concat(this.state.cloud_id).concat('/').concat(this.state.scaler_id);
         xhr.open('POST', url);
         xhr.send();
     }
@@ -215,12 +245,34 @@ class ListScaler extends Component {
                             onClick = { () => this.confirmDeleteScaler(data.Data[item].cid,data.Data[item].id)}>
                             Delete scaler
                         </button>
+                        {   data.Data[item].active 
+                        ? 
                         <button className="btn btn-secondary" 
                             style={{marginLeft: '2%'}} 
-                            onClick = { () => data.Data[item].active ? this.inactiveScaler(data.Data[item].cid,data.Data[item].id): 
-                            this.activeScaler(data.Data[item].cid,data.Data[item].id)}>
-                            {data.Data[item].active ? "Inactive": "Active"}
+                            // onClick = { () => data.Data[item].active ? this.inactiveScaler(data.Data[item].cid,data.Data[item].id): 
+                            // this.activeScaler(data.Data[item].cid,data.Data[item].id)}
+                            onClick = { () => this.confirmInactiveScaler(data.Data[item].cid,data.Data[item].id)}
+                            >
+                            Inactive
                         </button>
+                        :
+                        <button className="btn btn-secondary" 
+                            style={{marginLeft: '2%'}} 
+                            // onClick = { () => data.Data[item].active ? this.inactiveScaler(data.Data[item].cid,data.Data[item].id): 
+                            // this.activeScaler(data.Data[item].cid,data.Data[item].id)}
+                            onClick = { () => this.confirmActiveScaler(data.Data[item].cid,data.Data[item].id)}
+                            >
+                            Active
+                        </button>
+                        }
+                        {/* <button className="btn btn-secondary" 
+                            style={{marginLeft: '2%'}} 
+                            onClick = { () => data.Data[item].active ? this.inactiveScaler(data.Data[item].cid,data.Data[item].id): 
+                            this.activeScaler(data.Data[item].cid,data.Data[item].id)}
+                            onClick = { () => this.confirmActiveScaler(data.Data[item].cid,data.Data[item])}
+                            >
+                            {data.Data[item].active ? "Inactive": "Active"}
+                        </button> */}
                     </CardBody>
                 </Card>
             </div>
@@ -262,6 +314,26 @@ class ListScaler extends Component {
                     onEscapeKey={()     => this.setState({ showAlert: false })}
                     onCancel={()        => this.setState({ showAlert: false })}
                     onConfirm={()       => this.deleteScaler()}
+                />
+                <SweetAlert
+                    show={this.state.showActiveAlert}
+                    title="Active scaler?"
+                    text={this.state.textActiveAlert}
+                    showCancelButton
+                    onOutsideClick={()  => this.setState({ showActiveAlert: false })}
+                    onEscapeKey={()     => this.setState({ showActiveAlert: false })}
+                    onCancel={()        => this.setState({ showActiveAlert: false })}
+                    onConfirm={()       => this.activeScaler()}
+                />
+                <SweetAlert
+                    show={this.state.showInactiveAlert}
+                    title="Inactive scaler?"
+                    text={this.state.textInactiveAlert}
+                    showCancelButton
+                    onOutsideClick={()  => this.setState({ showInactiveAlert: false })}
+                    onEscapeKey={()     => this.setState({ showInactiveAlert: false })}
+                    onCancel={()        => this.setState({ showInactiveAlert: false })}
+                    onConfirm={()       => this.inactiveScaler()}
                 />
                 <SweetAlert
                     show={this.state.showNotify}

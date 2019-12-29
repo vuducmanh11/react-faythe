@@ -3,6 +3,7 @@ import React, {Component} from 'react';
 import Input from './form/Input';
 import Button from './form/Button';
 import Global from '../env/faythe';
+import SweetAlert from 'sweetalert-react';
 
 class RegisterCloud extends Component {
     constructor(props) {
@@ -10,6 +11,9 @@ class RegisterCloud extends Component {
         this.state = {
             Content: "",
             cloud: "not fill",
+            showAlert: false,
+            titleAlert: '',
+            textAlert: '',
             newcloud: {
                 // auth: {
                     username: "",
@@ -26,6 +30,17 @@ class RegisterCloud extends Component {
         };
         this.handleInput = this.handleInput.bind(this);
         this.handleRegisterCloud = this.handleRegisterCloud.bind(this);
+        this.handleShowAlert = this.handleShowAlert.bind(this);
+    }
+    handleShowAlert() {
+        this.setState({
+            showAlert: true
+        })
+    }
+    handleHideAlert() {
+        this.setState({
+            showAlert: false
+        })
     }
     handleInput(e) {
         let value = e.target.value;
@@ -42,6 +57,20 @@ class RegisterCloud extends Component {
         // });
         var xhr = new XMLHttpRequest()
         xhr.addEventListener('load', () => {
+            console.log(xhr.response);
+            var response = JSON.parse(xhr.response.split('}')[0].concat('}'))
+            if (response["Code"] !== 200) {
+                this.setState({
+                    titleAlert: response["Status"],
+                    textAlert: response["Err"]
+                })
+            } else {
+                this.setState({
+                    titleAlert: "Create success"
+                })
+            }
+            this.handleShowAlert();
+            console.log(xhr.response)
             console.log("register succes");
         })
         // xhr.open('POST', 'http://127.0.0.1:8600/clouds/openstack');
@@ -63,6 +92,16 @@ class RegisterCloud extends Component {
     render() {
         return(
             <div>
+                <SweetAlert
+                        show={this.state.showAlert}
+                        title={this.state.titleAlert}
+                        text={this.state.textAlert}
+                        showCancelButton
+                        onOutsideClick={()  => this.setState({ showAlert: false })}
+                        onEscapeKey={()     => this.setState({ showAlert: false })}
+                        onCancel={()        => this.setState({ showAlert: false })}
+                        onConfirm={()       => this.handleHideAlert()}
+                    />
                 <form className="container-fluid" onSubmit={this.handleRegisterCloud}>
                     <div>
                         <p>Auth section</p>

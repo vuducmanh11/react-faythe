@@ -5,7 +5,9 @@ import Button from './form/Button';
 import Select from './form/Select';
 import Global from '../env/faythe';
 import SweetAlert from 'sweetalert-react';
+import uuid from "uuid";
 import '../../node_modules/sweetalert/dist/sweetalert.css';
+import { Container, Row, Col } from 'reactstrap';
 
 class CreateScaler extends Component {
     constructor(props) {
@@ -18,17 +20,47 @@ class CreateScaler extends Component {
             Content: "",
             cloud: "not fill",
             scale_options: ['VirtualMachine', 'ServiceChain'],
+            query_epr_options: ['>', '<', '='],
+            query_template: {
+                'High cpu': '123',
+                'High memory': `( avg by(stack_id) ((node_memory_MemTotal_bytes{stack_id=~"${stackid}"} -\
+                (node_memory_MemFree_bytes{stack_id=~"${stackid}"} + node_memory_Buffers_bytes\
+                {stack_id=~"${stackid}"} + node_memory_Cached_bytes{stack_id=~\
+                "${stackid}"})) / node_memory_MemTotal_bytes{stack_id=~"${stackid}"} * 100)) > 20`,
+                'custom': ''
+            },
+            query_options: ['High cpu', 'High memory', 'custom'],
+            actions: [
+                {   
+                    id: 1,
+                    action_key:'scaleup_policy',
+                    action_url:'http://10.60.17.231:8000/v1/signal/',
+                    // action_type:'',
+                    // action_method: '',
+                    action_attempts: 4,
+                    action_delay: '50ms',
+                    // action_delaytype: '',
+                }
+            ],
             scaler: {
-                scaler_type: "",
+                scaler_type: "VirtualMachine",
                 cid: this.props.match.params.id,
                 // cuser: "admin",
                 // cpass: "",
                 stack_id: "33e62d1d-69be-4a16-a60a-88e933ef8846",
                 stack_name: "contrail",
-                query: `( avg by(stack_id) ((node_memory_MemTotal_bytes{stack_id=~"${stackid}"} -\
-                (node_memory_MemFree_bytes{stack_id=~"${stackid}"} + node_memory_Buffers_bytes\
-                {stack_id=~"${stackid}"} + node_memory_Cached_bytes{stack_id=~\
-                "${stackid}"})) / node_memory_MemTotal_bytes{stack_id=~"${stackid}"} * 100)) > 20`,
+                // query_template: {
+                //     'High cpu': '123',
+                //     'High memory': `( avg by(stack_id) ((node_memory_MemTotal_bytes{stack_id=~"${stackid}"} -\
+                //     (node_memory_MemFree_bytes{stack_id=~"${stackid}"} + node_memory_Buffers_bytes\
+                //     {stack_id=~"${stackid}"} + node_memory_Cached_bytes{stack_id=~\
+                //     "${stackid}"})) / node_memory_MemTotal_bytes{stack_id=~"${stackid}"} * 100)) > 20`,
+                //     'custom': ''
+                // },
+                // query_options: ['High cpu', 'High memory', 'custom'],
+                query_type: '',
+                query_epr: '',
+                query_val: '',
                 duration: "4m",
                 interval: "30s",
                 action: "scaleup_policy",
@@ -48,6 +80,52 @@ class CreateScaler extends Component {
         this.handleInput = this.handleInput.bind(this);
         this.handleCreateScaler = this.handleCreateScaler.bind(this);
         this.handleShowAlert = this.handleShowAlert.bind(this);
+        this.handleAction = this.handleAction.bind(this);
+        this.handleAddAction = this.handleAddAction.bind(this);
+        this.handleDeleteAction = this.handleDeleteAction.bind(this);
+    }
+    handleAddAction() {
+        // console.log(this.state.actions);
+        var actions = this.state.actions;
+        const newAction = {
+            id: uuid(),
+            action_key: '',
+            action_url: '',
+            action_attempts: 4,
+            action_delay: '50ms',
+        };
+        // console.log(actions)
+        // this.setState({
+        //     actions: [...actions, newAction],
+        // })
+        // console.log("fukkk");
+        console.log(actions)
+        console.log(Array.isArray(actions))
+        actions.push(newAction)
+        this.setState({
+            actions: actions
+        })
+        console.log(Array.isArray(this.state.actions));
+    }
+    handleDeleteAction(index) {
+        console.log(index);
+        var actions = this.state.actions.slice();
+        actions.splice(index, 1);
+        this.setState({
+            actions: actions
+        })
+    }
+    handleAction(index, e) {
+        let value = e.target.value;
+        let name = e.target.name;
+        console.log(index);
+        console.log(name);
+        console.log(value);
+        var actions = this.state.actions.slice();
+        console.log(actions[index])
+        actions[index][name] = value
+        console.log(actions)
+        this.setState({actions: actions})
     }
     handleInput(e) {
         let value = e.target.value;
@@ -76,15 +154,15 @@ class CreateScaler extends Component {
     }
     handleCreateScaler(e) {
         e.preventDefault();
-        var action = this.state.scaler.action
-        console.log(action)
+        // var action = this.state.scaler.action
+        // console.log(action)
         var scaler = {
             cid : this.state.scaler.cid,
             // cuser: this.state.scaler.cuser,
             // cpass: this.state.scaler.cpass,
             stack_id: this.state.scaler.stack_id,
             stack_name: this.state.scaler.stack_name,
-            query: this.state.scaler.query,
+            query: this.state.query_template[this.state.scaler.query_type].concat(this.state.scaler.query_epr).concat(this.state.scaler.query_val),
             duration: this.state.scaler.duration,
             interval: this.state.scaler.interval,
             actions: {},
@@ -96,13 +174,13 @@ class CreateScaler extends Component {
             // networks: this.state.scaler.networks.split(',')
             networks: this.state.scaler.networks
         }
-        scaler.actions[action] = {
-            url: this.state.scaler.url,
-            attempts: this.state.scaler.attempts,
-            delay: this.state.scaler.delay,
-            // type: this.state.scaler.type,
-            // delay_type: this.state.scaler.delay_type,
-            // method: this.state.scaler.method,
+        var actions = this.state.actions;
+        for (var i = 0; i < actions.length; i++){
+            scaler.actions[actions[i].action_key] = {
+                url: actions[i].action_url,
+                attempts: actions[i].action_attempts,
+                delay: actions[i].action_delay,
+            }
         }
         console.log(scaler)
         var json = JSON.stringify(scaler)
@@ -129,14 +207,44 @@ class CreateScaler extends Component {
         xhr.send(json)
     }
     render() {
-        // const {data} = this.props.location
-        // console.log("fuckkk ", data)
-        // console.log(this.props)
-        
-        if (this.state.scaler.scaler_type === "VirtualMachine") {
-            return (
-                <div>
-                    <SweetAlert
+        const If = (props) => {
+            const condition = props.condition || false;
+            const positive = props.then || null;
+            const negative = props.else || null;
+            
+            return condition ? positive : negative;
+          };
+        const type = this.state.scaler.scaler_type === 'VirtualMachine';
+        const actions = []
+        for (const [index, value] of this.state.actions.entries()){
+            actions.push(
+                <Row>
+                    <Col xs={3}>
+                        <Input required inputType={'text'}
+                        name={'action_key'} value={value.action_key}
+                        placeholder = {'Enter your'}
+                        handleChange = {this.handleAction.bind(this, index)} 
+                        />
+                    </Col>
+                    <Col xs={7}>
+                        <Input required inputType={'text'}
+                        name={'action_url'} value={value.action_url}
+                        placeholder = {'Enter your'}
+                        handleChange = {this.handleAction.bind(this, index)}
+                        />
+                    </Col>
+                    <Col xs={1}>
+                        <button type="button" onClick = {this.handleAddAction}>Add</button>
+                    </Col>
+                    <Col xs={1}>
+                        <button type="button" onClick = {this.handleDeleteAction.bind(this, index)}>Delete</button>
+                    </Col>
+                </Row>
+            )
+        }
+        return(
+            <div>
+                <SweetAlert
                         show={this.state.showAlert}
                         title={this.state.titleAlert}
                         text={this.state.textAlert}
@@ -146,112 +254,6 @@ class CreateScaler extends Component {
                         onCancel={()        => this.setState({ showAlert: false })}
                         onConfirm={()       => this.handleHideAlert()}
                     />
-                    
-                    <form className="container-fluid" onSubmit={this.handleCreateScaler}>
-                    {/* <form className="container-fluid" onSubmit={this.handleShowAlert}> */}
-                        <h2>Select type scaler</h2>
-                        <Select title={'Select type scaler'} required
-                            name={'scaler_type'}
-                            options = {this.state.scale_options} 
-                            value = {this.state.scaler.scaler_type}
-                            placeholder = {'Select Type'}
-                            handleChange = {this.handleInput}
-                            />
-                        <Input required 
-                        inputType={'text'}
-                        title={"Cloud ID"}
-                        name={'cid'}
-                        value={this.state.scaler.cid}
-                        placeholder = {'Fill cloud-id'}
-                        handleChange = {this.handleInput}
-                        />
-                        <Input required 
-                        inputType={'text'}
-                        title={"Stack ID"}
-                        name={'stack_id'}
-                        value={this.state.scaler.stack_id}
-                        placeholder = {'Fill stackID'}
-                        handleChange = {this.handleInput}
-                        />
-                        <Input required 
-                        inputType={'text'}
-                        title={"Stack name"}
-                        name={'stack_name'}
-                        value={this.state.scaler.stack_name}
-                        placeholder = {'Fill stack name'}
-                        handleChange = {this.handleInput}
-                        />
-                        <Input required 
-                        inputType={'text'}
-                        title={"query"}
-                        name={'query'}
-                        value={this.state.scaler.query}
-                        placeholder = {'Fill query'}
-                        handleChange = {this.handleInput}
-                        />
-                        <Input required 
-                            inputType={'text'}
-                            title={"duration"}
-                            name={'duration'}
-                            value={this.state.scaler.duration}
-                            placeholder = {'Enter your'}
-                            handleChange = {this.handleInput}
-
-                        />
-                        <Input required 
-                            inputType={'text'}
-                            title={"Interval"}
-                            name={'interval'}
-                            value={this.state.scaler.interval}
-                            placeholder = {'Enter your'}
-                            handleChange = {this.handleInput}
-
-                        />
-                        <Input required
-                            inputType={'text'}
-                            title={"Action key"}
-                            name={'action'}
-                            value={this.state.scaler.action}
-                            placeholder = {'Enter your'}
-                            handleChange = {this.handleInput}
-                        />    
-                        <Input required 
-                            inputType={'text'}
-                            title={"Url trigger scale"}
-                            name={'url'}
-                            value={this.state.scaler.url}
-                            placeholder = {'Enter your'}
-                            handleChange = {this.handleInput}
-                        />
-                        <Input required 
-                            inputType={'text'}
-                            title={"Active"}
-                            name={'active'}
-                            value={this.state.scaler.active}
-                            placeholder = {'Enter your'}
-                            handleChange = {this.handleInput}
-                        />
-                        <Input required 
-                            inputType={'text'}
-                            title={"Tags"}
-                            name={'tags'}
-                            value={this.state.scaler.tags}
-                            placeholder = {'Enter your'}
-                            handleChange = {this.handleInput}
-                        />
-                        
-                        <Button 
-                            action = {this.handleCreateScaler}
-                            type = {'primary'} 
-                            title = {'Register'}
-                            style={buttonStyle}
-                        />
-                    </form>    
-                </div>
-            )
-        } else if (this.state.scaler.scaler_type === "ServiceChain") {        
-        return(
-            <div>
                 <form className="container-fluid" onSubmit={this.handleCreateScaler}>
                     <div>
                         <h2>Select type scaler</h2>
@@ -262,77 +264,163 @@ class CreateScaler extends Component {
                             placeholder = {'Select Type'}
                             handleChange = {this.handleInput}
                             />
-                        <Input required 
-                        inputType={'text'}
-                        title={"Cloud ID"}
-                        name={'cid'}
-                        value={this.state.scaler.cid}
-                        placeholder = {'Fill cloud-id'}
-                        handleChange = {this.handleInput}
-                        />
-                        <Input required 
-                        inputType={'text'}
-                        title={"Stack ID"}
-                        name={'stack_id'}
-                        value={this.state.scaler.stack_id}
-                        placeholder = {'Fill stackID'}
-                        handleChange = {this.handleInput}
-                        />
-                        <Input required 
-                        inputType={'text'}
-                        title={"Stack name"}
-                        name={'stack_name'}
-                        value={this.state.scaler.stack_name}
-                        placeholder = {'Fill stack name'}
-                        handleChange = {this.handleInput}
-                        />
-                        <Input required inputType={'text'} title={"Service chain policy"} name={'sfc_policy'}
-                            value={this.state.scaler.sfc_policy} placeholder={'Fill service chain policy'}
-                            handleChange={this.handleInput} />
-                        <Input required inputType={'text'} title={"Network client"} name={'networks'}
-                            value={this.state.scaler.networks} handleChange={this.handleInput} />
-                        <Input required 
-                        inputType={'text'}
-                        title={"query"}
-                        name={'query'}
-                        value={this.state.scaler.query}
-                        placeholder = {'Fill query'}
-                        handleChange = {this.handleInput}
-                        />
-                        <Input required 
-                            inputType={'text'}
-                            title={"duration"}
-                            name={'duration'}
-                            value={this.state.scaler.duration}
-                            placeholder = {'Enter your'}
+                        <Row>
+                            <Col xs={4}>
+                                <Input required 
+                                inputType={'text'}
+                                title={"Cloud ID"}
+                                name={'cid'}
+                                value={this.state.scaler.cid}
+                                placeholder = {'Fill cloud-id'}
+                                handleChange = {this.handleInput}
+                                />
+                            </Col>
+                            <Col xs={4}>
+                                <Input required 
+                                inputType={'text'}
+                                title={"Stack ID"}
+                                name={'stack_id'}
+                                value={this.state.scaler.stack_id}
+                                placeholder = {'Fill stackID'}
+                                handleChange = {this.handleInput}
+                                />
+                            </Col>
+                            <Col xs={4}>
+                                <Input required 
+                                inputType={'text'}
+                                title={"Stack name"}
+                                name={'stack_name'}
+                                value={this.state.scaler.stack_name}
+                                placeholder = {'Fill stack name'}
+                                handleChange = {this.handleInput}
+                                />
+                            </Col>
+                        </Row>
+                        <Select title={'Select type query'} required
+                            name={'query_type'}
+                            options = {this.state.query_options} 
+                            value = {this.state.scaler.query_type}
+                            placeholder = {'Select Type'}
                             handleChange = {this.handleInput}
+                            />
+                        <Row>
+                            <Col xs={8}>
+                                <Input required 
+                                    inputType={'text'}
+                                    title={"Query"}
+                                    name={'query'}
+                                    value={this.state.query_template[this.state.scaler.query_type]}
+                                    placeholder = {'Fill query'}
+                                    handleChange = {this.handleInput}
+                                    />
+                            </Col>
+                            <Col xs={2}>
+                                <Select required
+                                    
+                                    title={'Expression'}
+                                    name={'query_epr'}
+                                    options={this.state.query_epr_options}
+                                    value={this.state.scaler.query_epr}
+                                    placeholder = {'Select Type'}
+                                    handleChange = {this.handleInput}
+                                />
+                            </Col>
+                            <Col xs={2}>
+                                <Input required 
+                                    inputType={'text'}
+                                    title={"Value"}
+                                    name={'query_val'}
+                                    value={this.state.scaler.query_val}
+                                    placeholder = {'Fill value'}
+                                    handleChange = {this.handleInput}
+                                />
+                            </Col>
+                        </Row>
+                        
+                        
+                        <Row>
+                            <Col xs={6}>
+                                <Input required 
+                                inputType={'text'}
+                                title={"duration"}
+                                name={'duration'}
+                                value={this.state.scaler.duration}
+                                placeholder = {'Enter your'}
+                                handleChange = {this.handleInput}
 
-                        />
-                        <Input required 
-                            inputType={'text'}
-                            title={"Interval"}
-                            name={'interval'}
-                            value={this.state.scaler.interval}
-                            placeholder = {'Enter your'}
-                            handleChange = {this.handleInput}
+                                />
+                            </Col>
+                            <Col xs={6}>
+                                <Input required 
+                                inputType={'text'}
+                                title={"Interval"}
+                                name={'interval'}
+                                value={this.state.scaler.interval}
+                                placeholder = {'Enter your'}
+                                handleChange = {this.handleInput}
 
-                        />
-                        <Input required
-                            inputType={'text'}
-                            title={"Action key"}
-                            name={'action'}
-                            value={this.state.scaler.action}
-                            placeholder = {'Enter your'}
-                            handleChange = {this.handleInput}
-                        />    
-                        <Input required 
-                            inputType={'text'}
-                            title={"Url trigger scale"}
-                            name={'url'}
-                            value={this.state.scaler.url}
-                            placeholder = {'Enter your'}
-                            handleChange = {this.handleInput}
-                        />
+                                />
+                            </Col>
+                        </Row>
+                        <Row>
+                            <Col xs={3}>
+                                <p>Action key</p>
+                            </Col>
+                            <Col xs={7}>
+                                <p>Action url</p>
+                            </Col>
+                            <Col xs={1}>
+                                <button type="button" onClick = {this.handleAddAction}>Add</button>
+                            </Col>
+                        </Row>
+                        {/* <Row>
+                            <Col xs={3}>
+                                <Input required
+                                inputType={'text'}
+                                // title={"Action key"}
+                                name={'action'}
+                                value={this.state.scaler.action}
+                                placeholder = {'Enter your'}
+                                handleChange = {this.handleInput}
+                                />    
+                            </Col>
+                            <Col xs={8}>
+                                <Input required 
+                                inputType={'text'}
+                                // title={"Action Url"}
+                                name={'url'}
+                                value={this.state.scaler.url}
+                                placeholder = {'Enter your'}
+                                handleChange = {this.handleInput}
+                                />
+                            </Col>
+                            <Col xs={1}>
+                                <button type="button" title={'Add'} onClick = {this.handleAddAction}></button>
+                            </Col>
+
+                        </Row> */}
+                        { actions}
+                        {/* {this.state.actions.map(function(value, key){
+                            return (
+                                <Row>
+                                    <Col xs={3}>
+                                        <Input required inputType={'text'}
+                                        name={'action'} value={value.action_key}
+                                        placeholder = {'Enter your'}
+                                        handleChange = {this.handleInput} 
+                                        />
+                                    </Col>
+                                    <Col xs={8}>
+                                        <Input required inputType={'text'}
+                                        name={'url'} value={value.action_url}
+                                        placeholder = {'Enter your'}
+                                        handleChange = {this.handleInput}
+                                        />
+                                    </Col>
+                                </Row>
+                            )
+                        })}                        */}
+                        
                         <Input required 
                             inputType={'text'}
                             title={"Active"}
@@ -349,7 +437,16 @@ class CreateScaler extends Component {
                             placeholder = {'Enter your'}
                             handleChange = {this.handleInput}
                         />
-                        
+                        <If condition={type}
+                            then={<p></p>}
+                            else={
+                                <div><Input required inputType={'text'} title={"Service chain policy"} name={'sfc_policy'}
+                                value={this.state.scaler.sfc_policy} placeholder={'Fill service chain policy'}
+                                handleChange={this.handleInput} />
+                                <Input required inputType={'text'} title={"Network client"} name={'networks'}
+                                value={this.state.scaler.networks} handleChange={this.handleInput} /></div>
+                            }
+                            />
                         <Button 
                             action = {this.handleCreateScaler}
                             type = {'primary'} 
@@ -357,34 +454,15 @@ class CreateScaler extends Component {
                             style={buttonStyle}
                         />
                     </div>
+
                 </form>
                 <div>
                     {this.state.Content}
                 </div>
+                
             </div>
         );
-        } else {
-            return(
-                <div>
-                    <form className="container-fluid" onSubmit={this.handleCreateScaler}>
-                        <div>
-                            <h2>Select type scaler</h2>
-                            <Select title={'Select type scaler'}
-                                name={'scaler_type'}
-                                options = {this.state.scale_options} 
-                                value = {this.state.scaler.scaler_type}
-                                placeholder = {'Select Type'}
-                                handleChange = {this.handleInput}
-                                />
-                        </div>
-                    </form>
-                    <div>
-                        {this.state.Content}
-                    </div>
-                </div>
-            );
 
-        }
     }
 }
 const buttonStyle = {
