@@ -73,11 +73,14 @@ class CreateScaler extends Component {
                 active: false,
                 cooldown: "400s",
                 tags: ["manhvd"],
-                networks: ["left-client","right-client"],
-                sfc_policy: "fw_policy"
+                //networks: [],
+                //sfc_policy: "",
+                 networks: ["left-client","right-client"],
+                 sfc_policy: "fw_policy"
             }
         };
         this.handleInput = this.handleInput.bind(this);
+        this.handleChange = this.handleChange.bind(this);
         this.handleCreateScaler = this.handleCreateScaler.bind(this);
         this.handleShowAlert = this.handleShowAlert.bind(this);
         this.handleAction = this.handleAction.bind(this);
@@ -130,6 +133,7 @@ class CreateScaler extends Component {
     handleInput(e) {
         let value = e.target.value;
         let name = e.target.name;
+        // handle networks, tags entry
         if (name === "networks" || name === "tags") {
             this.setState( prevState => ({ scaler: 
                 {...prevState.scaler, [name]: value.split(',')
@@ -141,6 +145,20 @@ class CreateScaler extends Component {
             }
             }), () => console.log(this.state.scaler))
         }
+    }
+    handleChange(e) {
+        let value = e.target.value;
+        let name = e.target.name;
+        // console.log(value)
+        let new_query_template = this.state.query_template
+        let query_type = this.state.scaler.query_type
+        // console.log(this.state.scaler.query_type)
+        // console.log(new_query_template[this.state.scaler.query_type])
+        new_query_template[query_type] = value
+        // console.log(new_query_template)
+        this.setState({
+            query_template: new_query_template
+        })
     }
     handleShowAlert() {
         this.setState({
@@ -311,7 +329,7 @@ class CreateScaler extends Component {
                                     name={'query'}
                                     value={this.state.query_template[this.state.scaler.query_type]}
                                     placeholder = {'Fill query'}
-                                    handleChange = {this.handleInput}
+                                    handleChange = {this.handleChange}
                                     />
                             </Col>
                             <Col xs={2}>
