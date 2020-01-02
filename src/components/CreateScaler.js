@@ -1,6 +1,7 @@
 import React, {Component} from 'react';
 
 import Input from './form/Input';
+import InputNoLabel from './form/InputNoLabel';
 import Button from './form/Button';
 import Select from './form/Select';
 import Global from '../env/faythe';
@@ -8,6 +9,7 @@ import SweetAlert from 'sweetalert-react';
 import uuid from "uuid";
 import '../../node_modules/sweetalert/dist/sweetalert.css';
 import { Container, Row, Col } from 'reactstrap';
+import 'font-awesome/css/font-awesome.min.css';
 
 class CreateScaler extends Component {
     constructor(props) {
@@ -97,11 +99,6 @@ class CreateScaler extends Component {
             action_attempts: 4,
             action_delay: '50ms',
         };
-        // console.log(actions)
-        // this.setState({
-        //     actions: [...actions, newAction],
-        // })
-        // console.log("fukkk");
         console.log(actions)
         console.log(Array.isArray(actions))
         actions.push(newAction)
@@ -149,13 +146,9 @@ class CreateScaler extends Component {
     handleChange(e) {
         let value = e.target.value;
         let name = e.target.name;
-        // console.log(value)
         let new_query_template = this.state.query_template
         let query_type = this.state.scaler.query_type
-        // console.log(this.state.scaler.query_type)
-        // console.log(new_query_template[this.state.scaler.query_type])
         new_query_template[query_type] = value
-        // console.log(new_query_template)
         this.setState({
             query_template: new_query_template
         })
@@ -172,12 +165,8 @@ class CreateScaler extends Component {
     }
     handleCreateScaler(e) {
         e.preventDefault();
-        // var action = this.state.scaler.action
-        // console.log(action)
         var scaler = {
             cid : this.state.scaler.cid,
-            // cuser: this.state.scaler.cuser,
-            // cpass: this.state.scaler.cpass,
             stack_id: this.state.scaler.stack_id,
             stack_name: this.state.scaler.stack_name,
             query: this.state.query_template[this.state.scaler.query_type].concat(this.state.scaler.query_epr).concat(this.state.scaler.query_val),
@@ -186,10 +175,8 @@ class CreateScaler extends Component {
             actions: {},
             active: this.state.scaler.active,
             cooldown: this.state.scaler.cooldown,
-            // tags: this.state.scaler.tags.split(','),
             tags: this.state.scaler.tags,
             sfc_policy: this.state.scaler.sfc_policy,
-            // networks: this.state.scaler.networks.split(',')
             networks: this.state.scaler.networks
         }
         var actions = this.state.actions;
@@ -238,24 +225,24 @@ class CreateScaler extends Component {
             actions.push(
                 <Row>
                     <Col xs={3}>
-                        <Input required inputType={'text'}
+                        <InputNoLabel required inputType={'text'}
                         name={'action_key'} value={value.action_key}
                         placeholder = {'Enter your'}
                         handleChange = {this.handleAction.bind(this, index)} 
                         />
                     </Col>
                     <Col xs={7}>
-                        <Input required inputType={'text'}
+                        <InputNoLabel required inputType={'text'}
                         name={'action_url'} value={value.action_url}
                         placeholder = {'Enter your'}
                         handleChange = {this.handleAction.bind(this, index)}
                         />
                     </Col>
                     <Col xs={1}>
-                        <button type="button" onClick = {this.handleAddAction}>Add</button>
+                        <button type="button" onClick = {this.handleAddAction}><i className="fa fa-plus"></i></button>
                     </Col>
                     <Col xs={1}>
-                        <button type="button" onClick = {this.handleDeleteAction.bind(this, index)}>Delete</button>
+                        <button type="button" onClick = {this.handleDeleteAction.bind(this, index)}><i className="fa fa-minus"></i></button>
                     </Col>
                 </Row>
             )
@@ -388,7 +375,7 @@ class CreateScaler extends Component {
                                 <p>Action url</p>
                             </Col>
                             <Col xs={1}>
-                                <button type="button" onClick = {this.handleAddAction}>Add</button>
+                                <button type="button" onClick = {this.handleAddAction}><i className="fa fa-plus" aria-hidden="true"></i></button>
                             </Col>
                         </Row>
                         {/* <Row>
