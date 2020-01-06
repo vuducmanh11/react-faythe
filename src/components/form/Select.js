@@ -4,7 +4,7 @@ import React from 'react';
 const Select = (props) => {
 	return(<div className="form-group">
 			<label for={props.name}> {props.title} </label>
-		    <select
+		    <select required
 		      id = {props.name}
 		      name={props.name}
 		      value={props.value}
