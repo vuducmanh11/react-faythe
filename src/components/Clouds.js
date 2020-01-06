@@ -180,6 +180,8 @@ class Clouds extends Component {
                         style={buttonStyle}
                     />
                 </form> */}
+                <h1>Danh sách các hệ thống đám mây</h1> 
+                <br />
                 <SweetAlert
                     show={this.state.showAlert}
                     title="Delete cloud?"
