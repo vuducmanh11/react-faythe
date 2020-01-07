@@ -79,13 +79,8 @@ class CreateScaler extends Component {
                 type: "http",
                 delay_type: "backoff",
                 method: "POST",
-<<<<<<< HEAD
-                active: false,
-                cooldown: "180s",
-=======
                 active: "",
-                cooldown: "400s",
->>>>>>> 773c57f779cfec3d332ed60f601c9c202d055eac
+                cooldown: "180s",
                 tags: ["manhvd"],
                 // networks: ["left-client","right-client"],
                 // sfc_policy: "fw_policy"
