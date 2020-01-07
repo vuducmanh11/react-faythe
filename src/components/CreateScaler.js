@@ -58,15 +58,6 @@ class CreateScaler extends Component {
                 // cpass: "",
                 stack_id: "33e62d1d-69be-4a16-a60a-88e933ef8846",
                 stack_name: "contrail",
-                // query_template: {
-                //     'High cpu': '123',
-                //     'High memory': `( avg by(stack_id) ((node_memory_MemTotal_bytes{stack_id=~"${stackid}"} -\
-                //     (node_memory_MemFree_bytes{stack_id=~"${stackid}"} + node_memory_Buffers_bytes\
-                //     {stack_id=~"${stackid}"} + node_memory_Cached_bytes{stack_id=~\
-                //     "${stackid}"})) / node_memory_MemTotal_bytes{stack_id=~"${stackid}"} * 100)) > 20`,
-                //     'custom': ''
-                // },
-                // query_options: ['High cpu', 'High memory', 'custom'],
                 query_type: '',
                 query_epr: '',
                 query_val: '',
@@ -182,25 +173,32 @@ class CreateScaler extends Component {
     handleCreateScaler(e) {
         e.preventDefault();
         var scaler = {
-            cid : this.state.scaler.cid,
-            stack_id: this.state.scaler.stack_id,
-            stack_name: this.state.scaler.stack_name,
+            // cid : this.state.scaler.cid,
+            // stack_id: this.state.scaler.stack_id,
+            // stack_name: this.state.scaler.stack_name,
             query: this.state.query_template[this.state.scaler.query_type].concat(this.state.scaler.query_epr).concat(this.state.scaler.query_val),
             duration: this.state.scaler.duration,
             interval: this.state.scaler.interval,
+            description: "123131",
             actions: {},
             active: this.state.scaler.active,
             cooldown: this.state.scaler.cooldown,
             tags: this.state.scaler.tags,
-            sfc_policy: this.state.scaler.sfc_policy,
-            networks: this.state.scaler.networks
+            // sfc_policy: this.state.scaler.sfc_policy,
+            // networks: this.state.scaler.networks
         }
         var actions = this.state.actions;
         for (var i = 0; i < actions.length; i++){
             scaler.actions[actions[i].action_key] = {
                 url: actions[i].action_url,
-                attempts: actions[i].action_attempts,
-                delay: actions[i].action_delay,
+                // attempts: actions[i].action_attempts,
+                // delay: actions[i].action_delay,
+                // action: {
+                    type: "http",
+                    delay_type: "fixed",
+                    method: "POST",
+                    delay: "50ms"
+                // }
             }
         }
         console.log(scaler)
@@ -224,7 +222,9 @@ class CreateScaler extends Component {
             console.log(xhr.response)
         })
         // xhr.open('POST', 'http://127.0.0.1:8600/clouds/openstack');
-        xhr.open('POST', 'http://'.concat(Global.faythe_ip_addr).concat(":").concat(Global.faythe_port).concat("/scalers/").concat(scaler.cid))
+        var url = 'http://'.concat(Global.faythe_ip_addr).concat(":").concat(Global.faythe_port).concat("/scalers/").concat(this.state.scaler.cid)
+        console.log(url)
+        xhr.open('POST', url)
         xhr.send(json)
     }
     render() {
@@ -289,14 +289,14 @@ class CreateScaler extends Component {
                     />
                 <form className="container-fluid" onSubmit={this.handleCreateScaler}>
                     <div>
-                        <h2>Select type scaler</h2>
+                        {/* <h2>Select type scaler</h2>
                         <Select title={'Select type scaler'}
                             name={'scaler_type'}
                             options = {this.state.scale_options} 
                             value = {this.state.scaler.scaler_type}
                             placeholder = {'Select Type'}
                             handleChange = {this.handleInput}
-                            />
+                            /> */}
                         <Row>
                             <Col xs={4}>
                                 <Input required 
@@ -307,27 +307,7 @@ class CreateScaler extends Component {
                                 placeholder = {'Fill cloud-id'}
                                 handleChange = {this.handleInput}
                                 />
-                            </Col>
-                            <Col xs={4}>
-                                <Input required 
-                                inputType={'text'}
-                                title={"Stack ID"}
-                                name={'stack_id'}
-                                value={this.state.scaler.stack_id}
-                                placeholder = {'Fill stackID'}
-                                handleChange = {this.handleInput}
-                                />
-                            </Col>
-                            <Col xs={4}>
-                                <Input required 
-                                inputType={'text'}
-                                title={"Stack name"}
-                                name={'stack_name'}
-                                value={this.state.scaler.stack_name}
-                                placeholder = {'Fill stack name'}
-                                handleChange = {this.handleInput}
-                                />
-                            </Col>
+                            </Col>  
                         </Row>
                         <Select title={'Select type query'} required
                             name={'query_type'}
@@ -431,7 +411,7 @@ class CreateScaler extends Component {
                             handleChange = {this.handleInput}
                         />
                         
-                        {
+                        {/* {
                             type
                             ? (
                                 <div>
@@ -442,7 +422,7 @@ class CreateScaler extends Component {
                                         value={this.state.scaler.networks} handleChange={this.handleInput} pattern="[a-z0-9._%+-]+,[a-z0-9._%+-]+" />
                                 </div>
                             ) : (<p></p>) 
-                        }
+                        } */}
                         {/* <If condition={type}
                             then={<p></p>}
                             else={

@@ -9,6 +9,7 @@ ENV PATH /app/node_modules/.bin:$PATH
 
 # install and cache app dependencies
 COPY package.json /app/package.json
+COPY .env /app/.env
 RUN npm config set proxy http://10.60.135.36:8800/
 RUN npm config set https-proxy http://10.60.135.36:8800/
 RUN npm install --silent

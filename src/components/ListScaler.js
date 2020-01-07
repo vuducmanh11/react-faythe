@@ -148,6 +148,7 @@ class ListScaler extends Component {
         })
         var url = 'http://'.concat(Global.faythe_ip_addr).concat(":").concat(Global.faythe_port).concat("/scalers/active/")
         .concat(this.state.cloud_id).concat('/').concat(this.state.scaler_id);
+        console.log(url)
         xhr.open('POST', url);
         xhr.send();
     }
