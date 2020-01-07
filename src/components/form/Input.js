@@ -12,6 +12,7 @@ const Input = (props) => {
         name={props.name}
         type={props.inputType}
         value={props.value}
+        pattern={props.pattern}
         onChange={props.handleChange}
         placeholder={props.placeholder} 
         {...props} />
