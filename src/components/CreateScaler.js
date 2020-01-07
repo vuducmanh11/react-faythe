@@ -17,6 +17,7 @@ class CreateScaler extends Component {
         super(props);
         this.state = {
             showAlert: false,
+            stackid: stackid,
             titleAlert: '',
             textAlert: '',
             Content: "",
@@ -176,10 +177,11 @@ class CreateScaler extends Component {
             // cid : this.state.scaler.cid,
             // stack_id: this.state.scaler.stack_id,
             // stack_name: this.state.scaler.stack_name,
-            query: this.state.query_template[this.state.scaler.query_type].concat(this.state.scaler.query_epr).concat(this.state.scaler.query_val),
+            query: this.state.query_template[this.state.scaler.query_type].concat(this.state.scaler.query_epr).concat(this.state.scaler.query_val)
+            .split(this.state.stackid).join(this.state.scaler.stack_id),
             duration: this.state.scaler.duration,
             interval: this.state.scaler.interval,
-            description: "123131",
+            description: "",
             actions: {},
             active: this.state.scaler.active,
             cooldown: this.state.scaler.cooldown,
@@ -289,8 +291,8 @@ class CreateScaler extends Component {
                     />
                 <form className="container-fluid" onSubmit={this.handleCreateScaler}>
                     <div>
-                        {/* <h2>Select type scaler</h2>
-                        <Select title={'Select type scaler'}
+                        <h2>Create scaler</h2>
+                        {/* <Select title={'Select type scaler'}
                             name={'scaler_type'}
                             options = {this.state.scale_options} 
                             value = {this.state.scaler.scaler_type}
@@ -298,7 +300,7 @@ class CreateScaler extends Component {
                             handleChange = {this.handleInput}
                             /> */}
                         <Row>
-                            <Col xs={4}>
+                            <Col xs={6}>
                                 <Input required 
                                 inputType={'text'}
                                 title={"Cloud ID"}
@@ -307,7 +309,17 @@ class CreateScaler extends Component {
                                 placeholder = {'Fill cloud-id'}
                                 handleChange = {this.handleInput}
                                 />
-                            </Col>  
+                            </Col>
+                            <Col xs={6}>
+                                <Input required 
+                                inputType={'text'}
+                                title={"Stack ID"}
+                                name={'stack_id'}
+                                value={this.state.scaler.stack_id}
+                                placeholder = {'Fill stackID'}
+                                handleChange = {this.handleInput}
+                                />
+                            </Col>
                         </Row>
                         <Select title={'Select type query'} required
                             name={'query_type'}
