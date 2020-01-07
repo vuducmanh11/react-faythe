@@ -24,14 +24,20 @@ class CreateScaler extends Component {
             scale_options: ['VirtualMachine', 'ServiceChain'],
             query_epr_options: ['>', '<', '='],
             query_template: {
-                'High cpu': '123',
-                'High memory': `( avg by(stack_id) ((node_memory_MemTotal_bytes{stack_id=~"${stackid}"} -\
+                'Cpu': `( count(count (node_cpu_seconds_total { stack_id="${stackid}",job="faythe_scale_test"}) \
+                by (cpu, instance)) - avg(sum by (mode) (irate(node_cpu_seconds_total{  mode='idle', stack_id="${stackid}" \
+                ,job="faythe_scale_test"}[5m] )))) * 100 / count(count (node_cpu_seconds_total { stack_id="${stackid}" \ 
+                ,job="faythe_scale_test"  }) by (cpu, instance))`,
+
+                'Memory': `( avg by(stack_id) ((node_memory_MemTotal_bytes{stack_id=~"${stackid}"} -\
                 (node_memory_MemFree_bytes{stack_id=~"${stackid}"} + node_memory_Buffers_bytes\
                 {stack_id=~"${stackid}"} + node_memory_Cached_bytes{stack_id=~\
-                "${stackid}"})) / node_memory_MemTotal_bytes{stack_id=~"${stackid}"} * 100)) > 20`,
-                'custom': ''
+                "${stackid}"})) / node_memory_MemTotal_bytes{stack_id=~"${stackid}"} * 100))`,
+
+                'Bandwidth': `irate(node_network_receive_packets_total{job="faythe_scale_test", stack_id="${stackid}"}[5m])`,
+                'Custom': ''
             },
-            query_options: ['High cpu', 'High memory', 'custom'],
+            query_options: ['Cpu', 'Memory', 'Bandwidth', 'Custom'],
             actions: [
                 {   
                     id: 1,
@@ -73,7 +79,7 @@ class CreateScaler extends Component {
                 delay_type: "backoff",
                 method: "POST",
                 active: false,
-                cooldown: "400s",
+                cooldown: "180s",
                 tags: ["manhvd"],
                 //networks: [],
                 //sfc_policy: "",
