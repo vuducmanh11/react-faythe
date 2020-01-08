@@ -7,6 +7,7 @@ import Global from '../env/faythe';
 // import CreateScaler from './CreateScaler';
 import SweetAlert from 'sweetalert-react';
 import '../../node_modules/sweetalert/dist/sweetalert.css';
+import Button from './form/Button';
 
 class Clouds extends Component {
     constructor(props) {
@@ -170,16 +171,20 @@ class Clouds extends Component {
         
     }
     render() {
+        const mystyle = {
+            color: "black",
+            padding: "10px",
+            fontFamily: "Arial",
+            textDecoration: "none",
+          };
         return(
             <div>
-                {/* <form className="container" onSubmit={this.handleGetListCloud}>
-                    <Button 
-                        action = {this.handleGetListCloud}
-                        type = {'primary'} 
-                        title = {'Get list clouds'}
-                        style={buttonStyle}
-                    />
-                </form> */}
+                <br />
+                <button className="btn btn-secondary" style={{margin: "5px"}} ><a style={mystyle} target="_blank" href={Global.promui_url}>Monitor UI</a></button>
+                <button className="btn btn-secondary" style={{margin: "5px"}} ><a style={mystyle} target="_blank" href={Global.alertui_url}>Manager Alert UI</a></button>
+                <button className="btn btn-secondary" style={{margin: "5px"}} ><a style={mystyle} target="_blank" href={Global.grafanaui_url}>Visualize UI</a></button>
+
+
                 <h1>Danh sách các hệ thống đám mây</h1> 
                 <br />
                 <SweetAlert

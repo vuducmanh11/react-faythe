@@ -243,8 +243,10 @@ class ListScaler extends Component {
                             style={{"float":"right","textAlign":"center","padding":"0","borderRadius":"50%",
                             "width":"35px","height":"35px","lineHeight":"35px","fontSize":"0.9rem"}} >
                         </button>
-                        <CardTitle>Scaler ID:{data.Data[item].id}</CardTitle>
-                        <CardTitle>Scaler State:{data.Data[item].active ? "active": "inactive"}</CardTitle>
+                        <CardTitle>ID:{data.Data[item].id}</CardTitle>
+                        <CardTitle>State:{data.Data[item].active ? "active": "inactive"}</CardTitle>
+                        <CardTitle>Tags: {data.Data[item].tags.toString()}</CardTitle>
+                        <CardTitle>Query: ....{data.Data[item].query.substr(data.Data[item].query.length - 35)}</CardTitle>
                         <button className="btn btn-secondary"  
                             onClick = { () => this.confirmDeleteScaler(item, data.Data[item].id,)}>
                             Delete scaler
