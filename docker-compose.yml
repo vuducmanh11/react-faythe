@@ -4,9 +4,10 @@ services:
 
   faythe_web:
     container_name: faythe_web
-    build:
-      context: .
-      dockerfile: Dockerfile
+    #build:
+     # context: .
+      #dockerfile: Dockerfile
+    image: 10.240.201.50:8891/react_faythe:latest
     volumes:
       - '.:/app'
       - '/app/node_modules'
