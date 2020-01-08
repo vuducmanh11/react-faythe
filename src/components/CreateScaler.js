@@ -1,6 +1,7 @@
 import React, {Component} from 'react';
 
 import Input from './form/Input';
+import InputNoLabel from './form/InputNoLabel';
 import Button from './form/Button';
 import Select from './form/Select';
 import Global from '../env/faythe';
@@ -8,6 +9,7 @@ import SweetAlert from 'sweetalert-react';
 import uuid from "uuid";
 import '../../node_modules/sweetalert/dist/sweetalert.css';
 import { Container, Row, Col } from 'reactstrap';
+import 'font-awesome/css/font-awesome.min.css';
 
 class CreateScaler extends Component {
     constructor(props) {
@@ -15,21 +17,29 @@ class CreateScaler extends Component {
         super(props);
         this.state = {
             showAlert: false,
+            stackid: stackid,
             titleAlert: '',
             textAlert: '',
             Content: "",
             cloud: "not fill",
             scale_options: ['VirtualMachine', 'ServiceChain'],
+            state_options: [ 'false', 'true' ],
             query_epr_options: ['>', '<', '='],
             query_template: {
-                'High cpu': '123',
-                'High memory': `( avg by(stack_id) ((node_memory_MemTotal_bytes{stack_id=~"${stackid}"} -\
+                'Cpu': `( count(count (node_cpu_seconds_total { stack_id="${stackid}",job="faythe_scale_test"}) \
+                by (cpu, instance)) - avg(sum by (mode) (irate(node_cpu_seconds_total{  mode='idle', stack_id="${stackid}" \
+                ,job="faythe_scale_test"}[5m] )))) * 100 / count(count (node_cpu_seconds_total { stack_id="${stackid}" \ 
+                ,job="faythe_scale_test"  }) by (cpu, instance))`,
+
+                'Memory': `( avg by(stack_id) ((node_memory_MemTotal_bytes{stack_id=~"${stackid}"} -\
                 (node_memory_MemFree_bytes{stack_id=~"${stackid}"} + node_memory_Buffers_bytes\
                 {stack_id=~"${stackid}"} + node_memory_Cached_bytes{stack_id=~\
-                "${stackid}"})) / node_memory_MemTotal_bytes{stack_id=~"${stackid}"} * 100)) > 20`,
-                'custom': ''
+                "${stackid}"})) / node_memory_MemTotal_bytes{stack_id=~"${stackid}"} * 100))`,
+
+                'Bandwidth': `irate(node_network_receive_packets_total{job="faythe_scale_test", stack_id="${stackid}"}[5m])`,
+                'Custom': ''
             },
-            query_options: ['High cpu', 'High memory', 'custom'],
+            query_options: ['Cpu', 'Memory', 'Bandwidth', 'Custom'],
             actions: [
                 {   
                     id: 1,
@@ -49,15 +59,6 @@ class CreateScaler extends Component {
                 // cpass: "",
                 stack_id: "33e62d1d-69be-4a16-a60a-88e933ef8846",
                 stack_name: "contrail",
-                // query_template: {
-                //     'High cpu': '123',
-                //     'High memory': `( avg by(stack_id) ((node_memory_MemTotal_bytes{stack_id=~"${stackid}"} -\
-                //     (node_memory_MemFree_bytes{stack_id=~"${stackid}"} + node_memory_Buffers_bytes\
-                //     {stack_id=~"${stackid}"} + node_memory_Cached_bytes{stack_id=~\
-                //     "${stackid}"})) / node_memory_MemTotal_bytes{stack_id=~"${stackid}"} * 100)) > 20`,
-                //     'custom': ''
-                // },
-                // query_options: ['High cpu', 'High memory', 'custom'],
                 query_type: '',
                 query_epr: '',
                 query_val: '',
@@ -70,13 +71,13 @@ class CreateScaler extends Component {
                 type: "http",
                 delay_type: "backoff",
                 method: "POST",
-                active: false,
-                cooldown: "400s",
+                active: "",
+                cooldown: "180s",
                 tags: ["manhvd"],
-                //networks: [],
-                //sfc_policy: "",
-                 networks: ["left-client","right-client"],
-                 sfc_policy: "fw_policy"
+                // networks: ["left-client","right-client"],
+                // sfc_policy: "fw_policy"
+                networks: "",
+                sfc_policy: "fw_policy"
             }
         };
         this.handleInput = this.handleInput.bind(this);
@@ -97,11 +98,6 @@ class CreateScaler extends Component {
             action_attempts: 4,
             action_delay: '50ms',
         };
-        // console.log(actions)
-        // this.setState({
-        //     actions: [...actions, newAction],
-        // })
-        // console.log("fukkk");
         console.log(actions)
         console.log(Array.isArray(actions))
         actions.push(newAction)
@@ -131,15 +127,24 @@ class CreateScaler extends Component {
         this.setState({actions: actions})
     }
     handleInput(e) {
+        console.log("fuck   ")
         let value = e.target.value;
         let name = e.target.name;
         // handle networks, tags entry
         if (name === "networks" || name === "tags") {
+            console.log("fucckkk")
             this.setState( prevState => ({ scaler: 
                 {...prevState.scaler, [name]: value.split(',')
             }
             }), () => console.log(this.state.scaler))
-        } else {
+        } else if (name === "active") {
+            var isActive = (value === 'true')
+            this.setState( prevState => ({ scaler:
+                {...prevState.scaler, [name]: isActive}
+            }), ()=> console.log(this.state.scaler))
+        }
+        else
+        {
             this.setState( prevState => ({ scaler: 
                 {...prevState.scaler, [name]: value
             }
@@ -149,13 +154,9 @@ class CreateScaler extends Component {
     handleChange(e) {
         let value = e.target.value;
         let name = e.target.name;
-        // console.log(value)
         let new_query_template = this.state.query_template
         let query_type = this.state.scaler.query_type
-        // console.log(this.state.scaler.query_type)
-        // console.log(new_query_template[this.state.scaler.query_type])
         new_query_template[query_type] = value
-        // console.log(new_query_template)
         this.setState({
             query_template: new_query_template
         })
@@ -172,32 +173,34 @@ class CreateScaler extends Component {
     }
     handleCreateScaler(e) {
         e.preventDefault();
-        // var action = this.state.scaler.action
-        // console.log(action)
         var scaler = {
-            cid : this.state.scaler.cid,
-            // cuser: this.state.scaler.cuser,
-            // cpass: this.state.scaler.cpass,
-            stack_id: this.state.scaler.stack_id,
-            stack_name: this.state.scaler.stack_name,
-            query: this.state.query_template[this.state.scaler.query_type].concat(this.state.scaler.query_epr).concat(this.state.scaler.query_val),
+            // cid : this.state.scaler.cid,
+            // stack_id: this.state.scaler.stack_id,
+            // stack_name: this.state.scaler.stack_name,
+            query: this.state.query_template[this.state.scaler.query_type].concat(this.state.scaler.query_epr).concat(this.state.scaler.query_val)
+            .split(this.state.stackid).join(this.state.scaler.stack_id),
             duration: this.state.scaler.duration,
             interval: this.state.scaler.interval,
+            description: "",
             actions: {},
             active: this.state.scaler.active,
             cooldown: this.state.scaler.cooldown,
-            // tags: this.state.scaler.tags.split(','),
             tags: this.state.scaler.tags,
-            sfc_policy: this.state.scaler.sfc_policy,
-            // networks: this.state.scaler.networks.split(',')
-            networks: this.state.scaler.networks
+            // sfc_policy: this.state.scaler.sfc_policy,
+            // networks: this.state.scaler.networks
         }
         var actions = this.state.actions;
         for (var i = 0; i < actions.length; i++){
             scaler.actions[actions[i].action_key] = {
                 url: actions[i].action_url,
-                attempts: actions[i].action_attempts,
-                delay: actions[i].action_delay,
+                // attempts: actions[i].action_attempts,
+                // delay: actions[i].action_delay,
+                // action: {
+                    type: "http",
+                    delay_type: "fixed",
+                    method: "POST",
+                    delay: "50ms"
+                // }
             }
         }
         console.log(scaler)
@@ -221,10 +224,13 @@ class CreateScaler extends Component {
             console.log(xhr.response)
         })
         // xhr.open('POST', 'http://127.0.0.1:8600/clouds/openstack');
-        xhr.open('POST', 'http://'.concat(Global.faythe_ip_addr).concat(":").concat(Global.faythe_port).concat("/scalers/").concat(scaler.cid))
+        var url = 'http://'.concat(Global.faythe_ip_addr).concat(":").concat(Global.faythe_port).concat("/scalers/").concat(this.state.scaler.cid)
+        console.log(url)
+        xhr.open('POST', url)
         xhr.send(json)
     }
     render() {
+        const handler = this.handleInput
         const If = (props) => {
             const condition = props.condition || false;
             const positive = props.then || null;
@@ -232,30 +238,41 @@ class CreateScaler extends Component {
             
             return condition ? positive : negative;
           };
-        const type = this.state.scaler.scaler_type === 'VirtualMachine';
+        const type = this.state.scaler.scaler_type === 'ServiceChain';
         const actions = []
+        const ServiceOption = (props) => {
+            return (
+                <div>
+                    <Input required inputType={'text'} title={"Service chain policy"} name={'sfc_policy'}
+                        value={props.sfc_policy} placeholder={'Fill service chain policy'}
+                        handleChange={props.handleInput} />
+                    <Input required inputType={'text'} title={"Network client"} name={'networks'}
+                        value={props.networks} handleChange={props.handleInput} />
+                </div>
+            )
+        }
         for (const [index, value] of this.state.actions.entries()){
             actions.push(
                 <Row>
                     <Col xs={3}>
-                        <Input required inputType={'text'}
+                        <InputNoLabel required inputType={'text'}
                         name={'action_key'} value={value.action_key}
                         placeholder = {'Enter your'}
                         handleChange = {this.handleAction.bind(this, index)} 
                         />
                     </Col>
                     <Col xs={7}>
-                        <Input required inputType={'text'}
+                        <InputNoLabel required inputType={'text'}
                         name={'action_url'} value={value.action_url}
                         placeholder = {'Enter your'}
                         handleChange = {this.handleAction.bind(this, index)}
                         />
                     </Col>
                     <Col xs={1}>
-                        <button type="button" onClick = {this.handleAddAction}>Add</button>
+                        <button type="button" onClick = {this.handleAddAction}><i className="fa fa-plus"></i></button>
                     </Col>
                     <Col xs={1}>
-                        <button type="button" onClick = {this.handleDeleteAction.bind(this, index)}>Delete</button>
+                        <button type="button" onClick = {this.handleDeleteAction.bind(this, index)}><i className="fa fa-minus"></i></button>
                     </Col>
                 </Row>
             )
@@ -274,16 +291,16 @@ class CreateScaler extends Component {
                     />
                 <form className="container-fluid" onSubmit={this.handleCreateScaler}>
                     <div>
-                        <h2>Select type scaler</h2>
-                        <Select title={'Select type scaler'}
+                        <h2>Create scaler</h2>
+                        {/* <Select title={'Select type scaler'}
                             name={'scaler_type'}
                             options = {this.state.scale_options} 
                             value = {this.state.scaler.scaler_type}
                             placeholder = {'Select Type'}
                             handleChange = {this.handleInput}
-                            />
+                            /> */}
                         <Row>
-                            <Col xs={4}>
+                            <Col xs={6}>
                                 <Input required 
                                 inputType={'text'}
                                 title={"Cloud ID"}
@@ -293,23 +310,13 @@ class CreateScaler extends Component {
                                 handleChange = {this.handleInput}
                                 />
                             </Col>
-                            <Col xs={4}>
+                            <Col xs={6}>
                                 <Input required 
                                 inputType={'text'}
                                 title={"Stack ID"}
                                 name={'stack_id'}
                                 value={this.state.scaler.stack_id}
                                 placeholder = {'Fill stackID'}
-                                handleChange = {this.handleInput}
-                                />
-                            </Col>
-                            <Col xs={4}>
-                                <Input required 
-                                inputType={'text'}
-                                title={"Stack name"}
-                                name={'stack_name'}
-                                value={this.state.scaler.stack_name}
-                                placeholder = {'Fill stack name'}
                                 handleChange = {this.handleInput}
                                 />
                             </Col>
@@ -334,7 +341,6 @@ class CreateScaler extends Component {
                             </Col>
                             <Col xs={2}>
                                 <Select required
-                                    
                                     title={'Expression'}
                                     name={'query_epr'}
                                     options={this.state.query_epr_options}
@@ -345,7 +351,8 @@ class CreateScaler extends Component {
                             </Col>
                             <Col xs={2}>
                                 <Input required 
-                                    inputType={'text'}
+                                    inputType={'number'}
+                                    min="0" step="1" pattern="\d*"
                                     title={"Value"}
                                     name={'query_val'}
                                     value={this.state.scaler.query_val}
@@ -388,65 +395,25 @@ class CreateScaler extends Component {
                                 <p>Action url</p>
                             </Col>
                             <Col xs={1}>
-                                <button type="button" onClick = {this.handleAddAction}>Add</button>
+                                <button type="button" onClick = {this.handleAddAction}><i className="fa fa-plus" aria-hidden="true"></i></button>
                             </Col>
                         </Row>
-                        {/* <Row>
-                            <Col xs={3}>
-                                <Input required
-                                inputType={'text'}
-                                // title={"Action key"}
-                                name={'action'}
-                                value={this.state.scaler.action}
-                                placeholder = {'Enter your'}
-                                handleChange = {this.handleInput}
-                                />    
-                            </Col>
-                            <Col xs={8}>
-                                <Input required 
-                                inputType={'text'}
-                                // title={"Action Url"}
-                                name={'url'}
-                                value={this.state.scaler.url}
-                                placeholder = {'Enter your'}
-                                handleChange = {this.handleInput}
-                                />
-                            </Col>
-                            <Col xs={1}>
-                                <button type="button" title={'Add'} onClick = {this.handleAddAction}></button>
-                            </Col>
-
-                        </Row> */}
                         { actions}
-                        {/* {this.state.actions.map(function(value, key){
-                            return (
-                                <Row>
-                                    <Col xs={3}>
-                                        <Input required inputType={'text'}
-                                        name={'action'} value={value.action_key}
-                                        placeholder = {'Enter your'}
-                                        handleChange = {this.handleInput} 
-                                        />
-                                    </Col>
-                                    <Col xs={8}>
-                                        <Input required inputType={'text'}
-                                        name={'url'} value={value.action_url}
-                                        placeholder = {'Enter your'}
-                                        handleChange = {this.handleInput}
-                                        />
-                                    </Col>
-                                </Row>
-                            )
-                        })}                        */}
-                        
-                        <Input required 
+                        <Select title={'Choose state of scaler'}
+                            name={'active'}
+                            options = {this.state.state_options} 
+                            value = {this.state.scaler.active}
+                            placeholder = {'State of scaler'}
+                            handleChange = {this.handleInput}
+                            />
+                        {/* <Input required 
                             inputType={'text'}
                             title={"Active"}
                             name={'active'}
                             value={this.state.scaler.active}
                             placeholder = {'Enter your'}
                             handleChange = {this.handleInput}
-                        />
+                        /> */}
                         <Input required 
                             inputType={'text'}
                             title={"Tags"}
@@ -455,18 +422,34 @@ class CreateScaler extends Component {
                             placeholder = {'Enter your'}
                             handleChange = {this.handleInput}
                         />
-                        <If condition={type}
+                        
+                        {/* {
+                            type
+                            ? (
+                                <div>
+                                    <Input required inputType={'text'} title={"Service chain policy"} name={'sfc_policy'}
+                                        value={this.state.scaler.sfc_policy} placeholder={'Fill service chain policy'}
+                                        handleChange={this.handleInput} />
+                                    <Input required inputType={'text'} title={"Network client"} name={'networks'}
+                                        value={this.state.scaler.networks} handleChange={this.handleInput} pattern="[a-z0-9._%+-]+,[a-z0-9._%+-]+" />
+                                </div>
+                            ) : (<p></p>) 
+                        } */}
+                        {/* <If condition={type}
                             then={<p></p>}
                             else={
-                                <div><Input required inputType={'text'} title={"Service chain policy"} name={'sfc_policy'}
-                                value={this.state.scaler.sfc_policy} placeholder={'Fill service chain policy'}
-                                handleChange={this.handleInput} />
-                                <Input required inputType={'text'} title={"Network client"} name={'networks'}
-                                value={this.state.scaler.networks} handleChange={this.handleInput} /></div>
+                                // <div>
+                                //     <Input required inputType={'text'} title={"Service chain policy"} name={'sfc_policy'}
+                                //         value={this.state.scaler.sfc_policy} placeholder={'Fill service chain policy'}
+                                //         handleChange={this.handleInput} />
+                                //     <Input required inputType={'text'} title={"Network client"} name={'networks'}
+                                //         value={this.state.scaler.networks} handleChange={this.handleInput} />
+                                // </div>
+                                <ServiceOption handleInput={this.handleInput} sfc_policy={this.state.scaler.sfc_policy} networks={this.state.scaler.networks} />
                             }
-                            />
+                            /> */}
                         <Button 
-                            action = {this.handleCreateScaler}
+                            // action = {this.handleCreateScaler}
                             type = {'primary'} 
                             title = {'Register'}
                             style={buttonStyle}

@@ -124,7 +124,7 @@ class RegisterCloud extends Component {
                     />
                     <Input 
                         inputType={'password'}
-                        title={"Clouds"}
+                        title={"Password"}
                         name={'password'}
                         value={this.state.newcloud.password}
                         placeholder = {'Enter your'}
@@ -136,7 +136,7 @@ class RegisterCloud extends Component {
                         <p>Monitor section</p>
                         <Input 
                         inputType={'text'}
-                        title={"backend"}
+                        title={"Monitor backend"}
                         name={'backend'}
                         value={this.state.newcloud.backend}
                         placeholder = {'Enter your'}
@@ -145,7 +145,7 @@ class RegisterCloud extends Component {
                     />
                     <Input 
                         inputType={'text'}
-                        title={"Clouds"}
+                        title={"Monitor Url"}
                         name={'address'}
                         value={this.state.newcloud.address}
                         placeholder = {'Enter your'}

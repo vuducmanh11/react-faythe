@@ -68,19 +68,21 @@ class ListScaler extends Component {
     updateScaler(c) {
         console.log(c)
     }
-    confirmDeleteScaler(c,s) {
+    confirmDeleteScaler(path, sid) {
         console.log("Confirm delete scaler");
-        console.log(c,s)
+        var cid = path.split('/')[2]
+        console.log(cid, sid)
         this.setState({
-            textAlert: s,
+            textAlert: sid,
             showAlert: true,
-            cloud_id: c,
-            scaler_id: s,
+            cloud_id: cid,
+            scaler_id: sid,
         })
     }
-    confirmActiveScaler(cid,sid) {
+    confirmActiveScaler(path, sid) {
         console.log("Confirm active scaler");
-        console.log(cid,sid)
+        var cid = path.split('/')[2]
+        console.log(path, cid, sid)
         this.setState({
             textActiveAlert: sid,
             showActiveAlert: true,
@@ -88,8 +90,9 @@ class ListScaler extends Component {
             scaler_id: sid,
         })
     }
-    confirmInactiveScaler(cid, sid) {
+    confirmInactiveScaler(path, sid) {
         console.log("Confirm inactive scaler");
+        var cid = path.split('/')[2]
         console.log(cid,sid)
         this.setState({
             textInactiveAlert: sid,
@@ -148,6 +151,7 @@ class ListScaler extends Component {
         })
         var url = 'http://'.concat(Global.faythe_ip_addr).concat(":").concat(Global.faythe_port).concat("/scalers/active/")
         .concat(this.state.cloud_id).concat('/').concat(this.state.scaler_id);
+        console.log(url)
         xhr.open('POST', url);
         xhr.send();
     }
@@ -242,7 +246,7 @@ class ListScaler extends Component {
                         <CardTitle>Scaler ID:{data.Data[item].id}</CardTitle>
                         <CardTitle>Scaler State:{data.Data[item].active ? "active": "inactive"}</CardTitle>
                         <button className="btn btn-secondary"  
-                            onClick = { () => this.confirmDeleteScaler(data.Data[item].cid,data.Data[item].id)}>
+                            onClick = { () => this.confirmDeleteScaler(item, data.Data[item].id,)}>
                             Delete scaler
                         </button>
                         {   data.Data[item].active 
@@ -251,7 +255,7 @@ class ListScaler extends Component {
                             style={{marginLeft: '2%'}} 
                             // onClick = { () => data.Data[item].active ? this.inactiveScaler(data.Data[item].cid,data.Data[item].id): 
                             // this.activeScaler(data.Data[item].cid,data.Data[item].id)}
-                            onClick = { () => this.confirmInactiveScaler(data.Data[item].cid,data.Data[item].id)}
+                            onClick = { () => this.confirmInactiveScaler(item, data.Data[item].id)}
                             >
                             Inactive
                         </button>
@@ -260,7 +264,7 @@ class ListScaler extends Component {
                             style={{marginLeft: '2%'}} 
                             // onClick = { () => data.Data[item].active ? this.inactiveScaler(data.Data[item].cid,data.Data[item].id): 
                             // this.activeScaler(data.Data[item].cid,data.Data[item].id)}
-                            onClick = { () => this.confirmActiveScaler(data.Data[item].cid,data.Data[item].id)}
+                            onClick = { () => this.confirmActiveScaler(item, data.Data[item].id)}
                             >
                             Active
                         </button>
