@@ -134,7 +134,7 @@ class App extends Component {
       <Container style={this.state.styleContainer.base}>
         <Row>
         <Router>
-          <Col xs={2}>
+          <Col xs={2} sm={2}>
             <div>
               <ul>
                 {this.renderMenu()}
@@ -143,9 +143,9 @@ class App extends Component {
   
       
           </Col>
-          <Col xs={2}>
+          <Col xs={1} sm={2}>
           </Col>
-          <Col xs={8}>
+          <Col xs={9} sm={8}>
           <div >
         <Switch >
           <Route exact path="/">

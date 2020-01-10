@@ -36,7 +36,7 @@ class CreateScaler extends Component {
                 {stack_id=~"${stackid}"} + node_memory_Cached_bytes{stack_id=~\
                 "${stackid}"})) / node_memory_MemTotal_bytes{stack_id=~"${stackid}"} * 100))`,
 
-                'Bandwidth': `irate(node_network_receive_packets_total{job="faythe_scale_test", stack_id="${stackid}"}[5m])`,
+                'Bandwidth': `avg by(stack_id) (irate(node_network_receive_packets_total{job="faythe_scale_test", stack_id="${stackid}", device="br0"}[5m] ))`,
                 'Custom': ''
             },
             query_options: ['Cpu', 'Memory', 'Bandwidth', 'Custom'],
@@ -261,7 +261,7 @@ class CreateScaler extends Component {
                         handleChange = {this.handleAction.bind(this, index)} 
                         />
                     </Col>
-                    <Col xs={7}>
+                    <Col xs={6}>
                         <InputNoLabel required inputType={'text'}
                         name={'action_url'} value={value.action_url}
                         placeholder = {'Enter your'}
@@ -329,7 +329,7 @@ class CreateScaler extends Component {
                             handleChange = {this.handleInput}
                             />
                         <Row>
-                            <Col xs={8}>
+                            <Col xs={12} sm={12} md={8}>
                                 <Input required 
                                     inputType={'text'}
                                     title={"Query"}
@@ -339,7 +339,7 @@ class CreateScaler extends Component {
                                     handleChange = {this.handleChange}
                                     />
                             </Col>
-                            <Col xs={2}>
+                            <Col xs={6} sm={6} md={2}>
                                 <Select required
                                     title={'Expression'}
                                     name={'query_epr'}
@@ -349,14 +349,14 @@ class CreateScaler extends Component {
                                     handleChange = {this.handleInput}
                                 />
                             </Col>
-                            <Col xs={2}>
+                            <Col xs={6} sm={6} md={2}>
                                 <Input required 
                                     inputType={'number'}
                                     min="0" step="1" pattern="\d*"
                                     title={"Value"}
                                     name={'query_val'}
                                     value={this.state.scaler.query_val}
-                                    placeholder = {'Fill value'}
+                                    placeholder = {''}
                                     handleChange = {this.handleInput}
                                 />
                             </Col>
@@ -367,7 +367,7 @@ class CreateScaler extends Component {
                             <Col xs={6}>
                                 <Input required 
                                 inputType={'text'}
-                                title={"duration"}
+                                title={"Duration"}
                                 name={'duration'}
                                 value={this.state.scaler.duration}
                                 placeholder = {'Enter your'}
@@ -389,12 +389,12 @@ class CreateScaler extends Component {
                         </Row>
                         <Row>
                             <Col xs={3}>
-                                <p>Action key</p>
+                                <p>Key</p>
                             </Col>
-                            <Col xs={7}>
+                            <Col xs={6}>
                                 <p>Action url</p>
                             </Col>
-                            <Col xs={1}>
+                            <Col xs={2}>
                                 <button type="button" onClick = {this.handleAddAction}><i className="fa fa-plus" aria-hidden="true"></i></button>
                             </Col>
                         </Row>

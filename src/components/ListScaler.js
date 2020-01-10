@@ -351,6 +351,7 @@ class ListScaler extends Component {
                     onCancel={()        => this.setState({ showNotify: false })}
                     onConfirm={()       => this.handleHideNotify()}
                 />
+                <br />
                 <div>
                     {this.state.Content}
                 </div>
