@@ -13,7 +13,7 @@
     "react-scripts": "3.2.0",
     "reactstrap": "^8.2.0",
     "read-yaml": "^1.1.0",
-    "serialize-javascript": "^2.1.2",
+    "serialize-javascript": "^3.1.0",
     "sweetalert-react": "^0.4.11",
     "uuid": "^3.3.3"
   },
